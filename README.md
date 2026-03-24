@@ -1,3 +1,2 @@
-Here should be the readme for the Cultural Stewards DAO. 
+This is the repository for Cultural Stewards DAO. 
 
-this is a demo

@@ -1,0 +1,6 @@
+[submodule "lib/forge-std"]
+	path = contracts/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "lib/powers-monorepo"]
+	path = contracts/lib/powers-monorepo
+	url = https://github.com/publius-projects/powers-monorepo

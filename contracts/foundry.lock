@@ -1,0 +1,20 @@
+{
+  "lib/circuits": {
+    "rev": "fef4b9485a45bbb8238364e3366150c22e3726be"
+  },
+  "lib/openzeppelin-contracts": {
+    "tag": {
+      "name": "v5.6.1",
+      "rev": "5fd1781b1454fd1ef8e722282f86f9293cacf256"
+    }
+  },
+  "lib/powers-monorepo": {
+    "rev": "34c6e27a2b23017961030788e963f6a0d2d398b2"
+  },
+  "lib/safe-smart-account": {
+    "tag": {
+      "name": "v1.5.0",
+      "rev": "dc437e8fba8b4805d76bcbd1c668c9fd3d1e83be"
+    }
+  }
+}

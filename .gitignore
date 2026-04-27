@@ -8,6 +8,7 @@ out/
 # ignore lib files
 /lib
 lib/
+contracts/lib/
 
 # Docs
 docs/

@@ -12,7 +12,7 @@ import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
 import { Soulbound1155, Soulbound1155Factory } from "@lib/powers-monorepo/solidity/src/helpers/Soulbound1155.sol";
 import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersFactory.sol"; 
-import { ElectionList } from "@lib/powers-monorepo/solidity/src/helpers/ElectionList.sol";
+import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 import { DeploySetup } from "./DeploySetup.s.sol";
 import { Governed721 } from "@lib/powers-monorepo/solidity/src/helpers/Governed721.sol";
 import { Nominees } from "@lib/powers-monorepo/solidity/src/helpers/Nominees.sol";
@@ -24,7 +24,7 @@ contract Helpers is Script {
     Soulbound1155 meritBadges;
     Governed721 governed721;
     Nominees nominees;
-    ElectionList electionList;
+    ElectionRegistry electionRegistry;
 
     function run() public {
         console2.log("Deploying Organisation's Helper contracts...");
@@ -36,7 +36,7 @@ contract Helpers is Script {
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreighx6axdemwbjara3xhhfn5yaiktidgljykzx3vsrqtymicxxtgvi"
         );
         nominees = new Nominees();
-        electionList = new ElectionList();
+        electionRegistry = new ElectionRegistry();
         governed721 = new Governed721();
         vm.stopBroadcast();
     }
@@ -53,8 +53,8 @@ contract Helpers is Script {
         return address(nominees);
     }
 
-    function getElectionList() public view returns (address) {
-        return address(electionList);
+    function getElectionRegistry() public view returns (address) {
+        return address(electionRegistry);
     }
 
     function getGoverned721() public view returns (address) {

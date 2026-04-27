@@ -1,8 +1,8 @@
 {
   "icon": "",
-  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeigawgiso7mndeswvhxgmkad2dg4fduwyojsk5zl5cz2lyyxc7jvae/physicalSubDao.png",
+  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeih77m4lyvnjtlfjhdxlallszwylnfygjlhvolursvd4kwlyq4qceu/digitalLayer.png",
   "description": 
-    "Manages physical manifestations (e.g., access to spaces, rent, legal logs). It is initiated by an Ideas sub-DAO. It has an allowance at the parent DAO.",
+    "Manages code repositories, commits, and digital representation of the organisation and its layers. The parent DAO holds some veto powers over this DAO.",
   "website": "https://github.com/publius-projects/powers-monorepo/tree/main/frontend/organisations",
   "codeOfConduct": "https://github.com/publius-projects/powers-monorepo/blob/main/CODE_OF_CONDUCT.md", 
   "disputeResolution": "",
@@ -20,7 +20,7 @@
   },
   "parentContracts": [ 
     {
-      "title": "Primary DAO",
+      "title": "Primary Layer",
       "address": "0xD7c83ba6665EEb7b7360f617e49a3f6D616600C6"
     }
   ],

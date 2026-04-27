@@ -10,7 +10,7 @@ import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersF
 import { DeployHelpers } from "@lib/powers-monorepo/solidity/governance/DeployHelpers.s.sol";
 import { Configurations } from "@lib/powers-monorepo/solidity/script/Configurations.s.sol";
 
-import { ElectionList } from "@lib/powers-monorepo/solidity/src/helpers/ElectionList.sol";
+import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 import { Soulbound1155 } from "@lib/powers-monorepo/solidity/src/helpers/Soulbound1155.sol";
 import { MandateRegistry } from "@lib/powers-monorepo/solidity/src/helpers/MandateRegistry.sol";
 
@@ -22,8 +22,8 @@ abstract contract DeploySetup is DeployHelpers {
     address testAccount1 = 0xEA223f81D7E74321370a77f1e44067bE8738B627;
     address testAccount2 = 0x1bFdB91B283d7Ec24012d7ff5A5B29005140D09a;
     address testAccount3 = 0x49fCf1DD685F6b5F88d9b0a972Dbf80Ee8846234;
-    string baseURI = "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeidhtykvnkp2wy5gnq4u65w3pxvgrf5sm3r6xj3q7pjog5bdltxm7i/";
-
+    string baseURI = "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeic2riafj6r6zzbrhewhe6q4l7jpw7u5mj32q55xcvfxwxyupgjffu/";
+    
     uint256 constitutionLength; 
     address[] targets;
     uint256[] values;
@@ -37,7 +37,7 @@ abstract contract DeploySetup is DeployHelpers {
     // The mandate version to be used. 
     uint16 constant MAJOR = 0;
     uint16 constant MINOR = 6;
-    uint16 constant PATCH = 1;
+    uint16 constant PATCH = 2;
     bool constant IS_STRICT = false;
 
     uint16 constant PACKAGE_SIZE = 15; // for packaging constitution proposals into multiple mandates if they exceed the block gas limit. This is a temporary solution and should be replaced with a more robust solution before production deployment.

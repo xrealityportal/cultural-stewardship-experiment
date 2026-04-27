@@ -11,7 +11,7 @@ For context, please see `specs.md`.
 
 The idea is to create user stories that link available actions to the UI interface of each (sub-)DAO. It would create a bridge between the institutional design and UI/UX of the organisation. 
 
-## Primary DAO
+## Primary Layer
 
 ### ***User interfaces***
 
@@ -25,7 +25,7 @@ The forum structures threads along mandates and governance flows: grouping manda
 
 This ‘blank canvas forum’ is an integral part of the ‘Powers Protocol starter pack’ – it is open source, and so any DAO based on Powers Protocol will be able to host their own customisable UX/UI portal using this ‘blank canvas forum’ that will become the DAO’s control panel; all activity will become centralised onto this platform. We made this decision because we believed it to be of paramount importance that the DAO’s communication and voting take place on the same plane; no additional communication channels such as email, social media, chat apps or Discord are required for the DAO to proceed. The ‘blank canvas forum’ plugs directly into the Powers Protocol and is fully blockchain integrated. 
 
-#### Bespoke site for Primary DAO
+#### Bespoke site for Primary Layer
 Each organisation has its own dedicated website for actions that are not directly governance related. These can include but are not limited to: 
 - minting tokens, claiming rewards. 
 - minting NFTs and linking them to RWAs. 
@@ -40,12 +40,12 @@ Each organisation has its own dedicated website for actions that are not directl
 #### Veto Calls to Sub-DAOs
 (unsure)
 
-#### Update Uri Primary DAO. 
+#### Update Uri Primary Layer. 
 - IMAGE / BANNER of org 
 - has info on where documentation / communication channels are 
 - its the metadata 
 
-#### Claim membership Primary DAO and Revoke. 
+#### Claim membership Primary Layer and Revoke. 
 
 #### Elect Executives
 
@@ -60,7 +60,7 @@ Add new stories here, with clear note that it has not been implemented yet.
 #### Transfer tokens to treasury
 
 
-## Digital sub-DAO
+## Digital Layer
 
 ### ***User interfaces***
 
@@ -81,14 +81,14 @@ Add new stories here, with clear note that it has not been implemented yet.
 Add new stories here, with clear note that it has not been implemented yet. 
 
 
-## Ideas sub-DAO
+## Ideas Layer
 
 ### ***User interfaces***
 
 #### Publius' Blank Canvas Forum 
 
-#### Bespoke website of the ideas sub-DAO. 
-This might be a generic one that is shared between Idea sub-DAOs. For us to decide.  
+#### Bespoke website of the ideas layer. 
+This might be a generic one that is shared between Idea layers. For us to decide.  
 
 [comment]: <> (Note: sub-titles are the same as thre governance flows in `specs.md`.) 
 ### ***User stories***  
@@ -117,7 +117,7 @@ New story here.
 
 Add new stories here, with clear note that it has not been implemented yet. 
 
-## Physical sub-DAO
+## Physical Layer
 
 ### ***User interfaces***
 

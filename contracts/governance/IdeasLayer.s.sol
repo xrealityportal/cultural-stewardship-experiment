@@ -8,20 +8,20 @@ import { DeploySetup } from "./DeploySetup.s.sol";
 import { PowersTypes } from "@lib/powers-monorepo/solidity/src/interfaces/PowersTypes.sol";
 import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
-import { ElectionList } from "@lib/powers-monorepo/solidity/src/helpers/ElectionList.sol";
+import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 import { ZKPassportHelper } from "@lib/circuits/src/solidity/src/ZKPassportHelper.sol";
 import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersFactory.sol";
 import { PowersDeployer } from "@lib/powers-monorepo/solidity/src/helpers/PowersDeployer.sol";
 
-contract IdeasDAO is DeploySetup {
+contract IdeasLayer is DeploySetup {
     PowersTypes.Conditions conditions;
     PowersTypes.Flow[] flows;
 
     PowersTypes.MandateInitData[] constitution; 
     PowersFactory powersFactory;
 
-    uint16 public requestMembershipPrimaryDaoId;
-    uint16 public requestNewPhysicalDaoId;
+    uint16 public requestParticipantshipPrimaryLayerId;
+    uint16 public requestNewPhysicalLayerId;
 
     //////////////////////////////////////////////////////////////////////
     //                        INITIALISATION                            //
@@ -29,28 +29,28 @@ contract IdeasDAO is DeploySetup {
     function run() public { 
         console2.log("Deploying Ideas Sub-DAO factory (contract only)...");
         vm.startBroadcast();
-        PowersDeployer ideasDaoDeployer = new PowersDeployer();
+        PowersDeployer IdeasLayerDeployer = new PowersDeployer();
         powersFactory = new PowersFactory(
-            "Ideas sub-DAO", // name
-            string.concat(baseURI, "ideasSubDao.json"),
+            "Ideas Layer", // name
+            string.concat(baseURI, "ideasLayer.json"),
             helperConfig.getMaxCallDataLength(block.chainid), // max call data length
             helperConfig.getMaxReturnDataLength(block.chainid), // max return data length
             helperConfig.getMaxExecutionsLength(block.chainid), // max executions length
-            address(ideasDaoDeployer)
+            address(IdeasLayerDeployer)
         );
         vm.stopBroadcast();
-        console2.log("Ideas sub-DAO factory deployed at:", address(powersFactory));
+        console2.log("Ideas Layer factory deployed at:", address(powersFactory));
     }
 
     //////////////////////////////////////////////////////////////////////
     //                          CONSTITUTE                              //
     //////////////////////////////////////////////////////////////////////
     function constitutePowers(
-        address primaryDAO,
-        address electionList, 
+        address PrimaryLayer,
+        address electionRegistry, 
         address safeTreasury
     ) public {
-        _createConstitution(primaryDAO, electionList, safeTreasury);
+        _createConstitution(PrimaryLayer, electionRegistry, safeTreasury);
         
         PowersTypes.MandateInitData[] memory constitutionPacked = packageInitData(constitution, PACKAGE_SIZE, 1);
         vm.startBroadcast();
@@ -70,8 +70,8 @@ contract IdeasDAO is DeploySetup {
     //                        CONSTITUTION                              //
     //////////////////////////////////////////////////////////////////////
     function _createConstitution(
-        address primaryDAO,
-        address electionList,
+        address PrimaryLayer,
+        address electionRegistry,
         address safeTreasury
     ) internal {
         mandateCount = 0; // resetting mandate count.
@@ -81,16 +81,16 @@ contract IdeasDAO is DeploySetup {
         //////////////////////////////////////////////////////////////////////
         // setup role labels // 
         calldatas = new bytes[](11);
-        calldatas[0] = abi.encodeWithSelector(IPowers.labelRole.selector, 0, "Admin", string.concat(baseURI, "admin.json"));  
-        calldatas[1] = abi.encodeWithSelector(IPowers.labelRole.selector, type(uint256).max, "Public", string.concat(baseURI, "public.json")); 
-        calldatas[2] = abi.encodeWithSelector(IPowers.labelRole.selector, 1, "Members", string.concat(baseURI, "members.json"));
-        calldatas[3] = abi.encodeWithSelector(IPowers.labelRole.selector, 2, "Conveners", string.concat(baseURI, "conveners.json")); 
-        calldatas[4] = abi.encodeWithSelector(IPowers.labelRole.selector, 3, "Moderators", string.concat(baseURI, "moderators.json"));  
-        calldatas[5] = abi.encodeWithSelector(IPowers.labelRole.selector, 6, "Primary DAO", string.concat(baseURI, "primaryDao_role.json"));
+        calldatas[0] = abi.encodeWithSelector(IPowers.labelRole.selector, 0, "Setup Initiator", "");  
+        calldatas[1] = abi.encodeWithSelector(IPowers.labelRole.selector, type(uint256).max, "Public", ""); 
+        calldatas[2] = abi.encodeWithSelector(IPowers.labelRole.selector, 1, "Participants", "");
+        calldatas[3] = abi.encodeWithSelector(IPowers.labelRole.selector, 2, "Stewards", ""); 
+        calldatas[4] = abi.encodeWithSelector(IPowers.labelRole.selector, 3, "Assessors", "");  
+        calldatas[5] = abi.encodeWithSelector(IPowers.labelRole.selector, 6, "Primary Layer", "");
         calldatas[6] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, cedars);
         calldatas[7] = abi.encodeWithSelector(IPowers.assignRole.selector, 2, cedars);
         calldatas[8] = abi.encodeWithSelector(IPowers.assignRole.selector, 3, cedars);
-        calldatas[9] = abi.encodeWithSelector(IPowers.assignRole.selector, 6, primaryDAO); 
+        calldatas[9] = abi.encodeWithSelector(IPowers.assignRole.selector, 6, PrimaryLayer); 
         calldatas[10] = abi.encodeWithSelector(IPowers.revokeMandate.selector, mandateCount + 1); // revoke mandate 1 after use.
 
         mandateCount++;
@@ -116,22 +116,22 @@ contract IdeasDAO is DeploySetup {
         mandateIds[2] = mandateCount + 3;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Request new Physical sub-DAO: This flow includes the initiation by Members, veto by Moderators, and execution by Conveners to request the creation of a new Physical sub-DAO.",
+            nameDescription: "Request new Physical Layer: This flow includes the initiation by Participants, veto by Assessors, and execution by Stewards to request the creation of a new Physical Layer.",
             mandateIds: mandateIds
         }));
 
         inputParams = new string[](1); // no input params, as all params are set in the config of the mandate.
-        inputParams[0] = "address Admin"; // the only input param is the new URI for the physical sub-DAO, which will be used by conveners when requesting the creation of a new physical sub-DAO.
+        inputParams[0] = "address Setup Initiator"; // the only input param is the new URI for the physical layer, which will be used by Stewards when requesting the creation of a new physical layer.
 
-        // Members: Initialise request for new physical sub-DAO.
+        // Participants: Initialise request for new physical layer.
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // 5 minutes to vote
         conditions.succeedAt = 51; // simple majority
-        conditions.quorum = 5; // low quorum. Many members might not be very active.
+        conditions.quorum = 5; // low quorum. Many Participants might not be very active.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Request new Physical sub-DAO: Members can initiate the request for creating a new Physical sub-DAO under the Primary DAO.",
+                nameDescription: "Request new Physical Layer: Participants can initiate the request for creating a new Physical Layer under the Primary Layer.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -139,13 +139,13 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions; 
 
-        // Moderators: Veto request for new physical sub-DAO
+        // Assessors: Veto request for new physical layer
         mandateCount++;
-        conditions.allowedRole = 3; // = Moderators
-        conditions.needFulfilled = mandateCount - 1; // need the previous mandate to be fulfilled (Members need to have initiated the request for a new physical sub-DAO).
+        conditions.allowedRole = 3; // = Assessors
+        conditions.needFulfilled = mandateCount - 1; // need the previous mandate to be fulfilled (Participants need to have initiated the request for a new physical layer).
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto request for new Physical sub-DAO: Moderators can veto the request for creating a new Physical sub-DAO under the Primary DAO.",
+                nameDescription: "Veto request for new Physical Layer: Assessors can veto the request for creating a new Physical Layer under the Primary Layer.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -153,30 +153,30 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Conveners: request at Primary DAO the creation of a new physical DAO.
-        // Note: this is a statement of intent. Physical DAOs are requested using a working group, after initated here by conveners.
+        // Stewards: request at Primary Layer the creation of a new physical DAO.
+        // Note: this is a statement of intent. Physical DAOs are requested using a working group, after initated here by Stewards.
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners
+        conditions.allowedRole = 2; // = Stewards
         conditions.quorum = 51; // simple majority
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // 10 minutes to vote
         conditions.succeedAt = 51; // simple majority
-        conditions.needFulfilled = mandateCount - 2; // need the Members to have initiated the request for a new physical sub-DAO.
-        conditions.needNotFulfilled = mandateCount - 1; // need the Moderators to NOT have vetoed the request for a new physical sub-DAO.
+        conditions.needFulfilled = mandateCount - 2; // need the Participants to have initiated the request for a new physical layer.
+        conditions.needNotFulfilled = mandateCount - 1; // need the Assessors to NOT have vetoed the request for a new physical layer.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Request new Physical sub-DAO: Conveners can create a new Physical sub-DAO.",
+                nameDescription: "Request new Physical Layer: Stewards can create a new Physical Layer.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ExternalAction_Simple"),
                 config: abi.encode( 
-                    primaryDAO,
-                    requestNewPhysicalDaoId, // parent mandate id (the create new physical sub-DAO at primary DAO mandate)
-                    "Requesting creation of new Physical sub-DAO from Primary DAO", // description
+                    PrimaryLayer,
+                    requestNewPhysicalLayerId, // parent mandate id (the create new physical layer at Primary Layer mandate)
+                    "Requesting creation of new Physical Layer from Primary Layer", // description
                     inputParams
                 ),
                 conditions: conditions
             })
         );
         delete conditions;
-        // uint16 requestNewPhysicalDaoWorkingGroupMandateId = mandateCount;
+        // uint16 requestNewPhysicalLayerWorkingGroupMandateId = mandateCount;
 
         // MISCELLANEOUS //
         mandateIds = new uint16[](2);
@@ -192,15 +192,15 @@ contract IdeasDAO is DeploySetup {
         inputParams = new string[](1);
         inputParams[0] = "string newUri";
 
-        // Conveners: Update URI
+        // Stewards: Update URI
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners
+        conditions.allowedRole = 2; // = Stewards
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 66; // = 2/3 majority
         conditions.quorum = 66; // = 66% quorum
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Update URI: Set allowed token for Physical sub-DAO",
+                nameDescription: "Update URI: Set allowed token for Physical Layer",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
                     address(0), // target address is its own powers contract
@@ -214,7 +214,7 @@ contract IdeasDAO is DeploySetup {
 
         // TRANSFER TOKENS INTO TREASURY //
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners. Any convener can call this mandate.
+        conditions.allowedRole = 2; // = Stewards. Any Steward can call this mandate.
         constitution.push(
             PowersTypes.MandateInitData({
                 nameDescription: "Transfer tokens to treasury: Any tokens accidently sent to the DAO can be recovered by sending them to the treasury",
@@ -232,17 +232,17 @@ contract IdeasDAO is DeploySetup {
         //                      ELECTORAL MANDATES                          //
         //////////////////////////////////////////////////////////////////////
 
-        // ASSIGN MEMBERSHIP //
+        // ASSIGN ParticipantSHIP //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Assign Membership: This flow allows users to apply for and claim member roles based on forum participation.",
+            nameDescription: "Assign Participantship: This flow allows users to apply for and claim Participant roles based on forum participation.",
             mandateIds: mandateIds
         }));
 
-        // public: apply for membership
+        // public: apply for Participantship
         inputParams = new string[](2);
         inputParams[0] = "address ApplicantAddress";
         inputParams[1] = "string ApplicationURI";
@@ -252,7 +252,7 @@ contract IdeasDAO is DeploySetup {
         conditions.throttleExecution = minutesToBlocks(10, helperConfig.getBlocksPerHour(block.chainid)); // to avoid spamming, the mandate is throttled.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Apply for Membership: Anyone can apply for membership to the DAO by submitting an application.",
+                nameDescription: "Apply for Participantship: Anyone can apply for Participantship to the DAO by submitting an application.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -260,18 +260,18 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // moderators: assess and assign membership
+        // Assessors: assess and assign Participantship
         mandateCount++;
-        conditions.allowedRole = 3; // = Moderators
+        conditions.allowedRole = 3; // = Assessors
         conditions.needFulfilled = mandateCount - 1; // need the application to have been submitted.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Assess and Assign Membership: Moderators can assess applications and assign membership to applicants.",
+                nameDescription: "Assess and Assign Participantship: Assessors can assess applications and assign Participantship to applicants.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode( 
                     address(0),
                     IPowers.assignRole.selector, // function selector to call
-                    abi.encode(1), // params before (role id 1 = Members) // the static params
+                    abi.encode(1), // params before (role id 1 = Participants) // the static params
                     inputParams, // the dynamic params (the input params of the parent mandate) -- NB: not that any excess data at the END OF CALLDATA is ignored. hence we can add the uri - it will not be taken into consideration. 
                     abi.encode() // no args after
                 ),
@@ -280,27 +280,27 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // REVOKE MEMBERSHIP //
+        // REVOKE ParticipantSHIP //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Revoke Membership: This flow allows members to veto and moderators to revoke membership.",
+            nameDescription: "Revoke Participantship: This flow allows Participants to veto and Assessors to revoke Participantship.",
             mandateIds: mandateIds
         }));
 
-        // Moderators can revoke membership following bad behaviour on forum etc.
-        // Members: veto Revoke Membership
+        // Assessors can revoke Participantship following bad behaviour on forum etc.
+        // Participants: veto Revoke Participantship
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = 51% majority
         conditions.quorum = 77; // = Note: high threshold.
-        conditions.needFulfilled = mandateCount - 1; // need the revoke membership mandate to have been fulfilled for the veto to be valid.
+        conditions.needFulfilled = mandateCount - 1; // need the revoke Participantship mandate to have been fulfilled for the veto to be valid.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Revoke Membership: Members can veto revoking membership from other members.",
+                nameDescription: "Veto Revoke Participantship: Participants can veto revoking Participantship from other Participants.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -308,24 +308,24 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Moderators: Revoke Membership
-        // Note: even though the inputParams also have the URI included (which is not needed for revoking membership), we keep the same inputParams for both the assign and revoke mandate, as the excess params will simply be ignored.
+        // Assessors: Revoke Participantship
+        // Note: even though the inputParams also have the URI included (which is not needed for revoking Participantship), we keep the same inputParams for both the assign and revoke mandate, as the excess params will simply be ignored.
         mandateCount++;
-        conditions.allowedRole = 3; // = Moderators
+        conditions.allowedRole = 3; // = Assessors
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = 51% majority
         conditions.quorum = 77; // = Note: high threshold.
         conditions.timelock = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 10 minutes timelock before execution.
         conditions.needNotFulfilled = mandateCount - 1; // need the veto to have NOT been fulfilled.
-        conditions.needFulfilled = mandateCount - 2; // need the revoke membership mandate to have been fulfilled.
+        conditions.needFulfilled = mandateCount - 2; // need the revoke Participantship mandate to have been fulfilled.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Revoke Membership: Moderators can revoke membership from members.",
+                nameDescription: "Revoke Participantship: Assessors can revoke Participantship from Participants.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode( 
                     address(0), // target is its own powers contract
                     IPowers.revokeRole.selector, // function selector to call
-                    abi.encode(1), // params before (role id 1 = Members) // the static params
+                    abi.encode(1), // params before (role id 1 = Participants) // the static params
                     inputParams, // the dynamic params (the input params of the parent mandate)
                     abi.encode() // no args after
                 ),
@@ -334,25 +334,25 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // REQUEST MEMBERSHIP OF PRIMARY DAO //
+        // REQUEST ParticipantSHIP OF Primary Layer //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Request Membership of Primary DAO: This flow allows members to apply for membership in the Primary DAO and moderators to approve and forward the request.",
+            nameDescription: "Request Participantship of Primary Layer: This flow allows Participants to apply for Participantship in the Primary Layer and Assessors to approve and forward the request.",
             mandateIds: mandateIds
         }));
 
         inputParams = new string[](1);
         inputParams[0] = "uint256[] TokenIds";
 
-        // Members: apply for membership of primary DAO. 
+        // Participants: apply for Participantship of Primary Layer. 
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Apply for Membership of Primary DAO: Members can apply for membership of the Primary DAO by submitting a request with their POAPs.",
+                nameDescription: "Apply for Participantship of Primary Layer: Participants can apply for Participantship of the Primary Layer by submitting a request with their POAPs.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -360,21 +360,21 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // moderators: ok and send request to primary DAO. 
+        // Assessors: ok and send request to Primary Layer. 
         mandateCount++;
-        conditions.allowedRole = 3; // = Moderators
+        conditions.allowedRole = 3; // = Assessors
         conditions.needFulfilled = mandateCount - 1; // need the application to have been submitted.
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // 5 minutes to vote
         conditions.succeedAt = 51; // simple majority
         conditions.quorum = 10; // low quorum.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Request Membership of Primary DAO: Moderators can ok requests for membership of the Primary DAO and send them to the Primary DAO for assessment.",
+                nameDescription: "Request Participantship of Primary Layer: Assessors can ok requests for Participantship of the Primary Layer and send them to the Primary Layer for assessment.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ExternalAction_Simple"),
                 config: abi.encode( 
-                    primaryDAO,
-                    requestMembershipPrimaryDaoId, // parent mandate id (the request membership of primary DAO mandate)
-                    "Requesting membership of Primary DAO", // description
+                    PrimaryLayer,
+                    requestParticipantshipPrimaryLayerId, // parent mandate id (the request Participantship of Primary Layer mandate)
+                    "Requesting Participantship of Primary Layer", // description
                     inputParams
                 ),
                 conditions: conditions
@@ -382,28 +382,28 @@ contract IdeasDAO is DeploySetup {
         ); 
         delete conditions;
 
-        // ASSIGN MODERATORS //
+        // ASSIGN AssessorS //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Assign Moderator Role: This flow allows members to veto and conveners to assign the Moderator role.",
+            nameDescription: "Assign Assessor Role: This flow allows Participants to veto and Stewards to assign the Assessor role.",
             mandateIds: mandateIds
         }));
 
         inputParams = new string[](1);
         inputParams[0] = "address Account";
         
-        // members: veto assigning moderator role.
+        // Participants: veto assigning Assessor role.
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = 51% majority
         conditions.quorum = 70; // = Note: high threshold.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Assign Moderator Role: Members can veto assigning the Moderator role to an account.",
+                nameDescription: "Veto Assign Assessor Role: Participants can veto assigning the Assessor role to an account.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -411,21 +411,21 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // conveners: assign moderator role.
+        // Stewards: assign Assessor role.
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners
+        conditions.allowedRole = 2; // = Stewards
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = simple majority
         conditions.quorum = 30; // = relatively low threshold.
         conditions.needNotFulfilled = mandateCount - 1; // need the veto to have NOT been fulfilled.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Assign Moderator Role: Conveners can assign the Moderator role to an account.",
+                nameDescription: "Assign Assessor Role: Stewards can assign the Assessor role to an account.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode( 
                     address(0), // target is its own powers contract
                     IPowers.assignRole.selector, // function selector to call
-                    abi.encode(3), // params before (role id 3 = Moderators) // the static params
+                    abi.encode(3), // params before (role id 3 = Assessors) // the static params
                     inputParams, // the dynamic params (the input params of the parent mandate)
                     abi.encode() // no args after
                 ),
@@ -434,26 +434,26 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // REVOKE MODERATORS //
+        // REVOKE AssessorS //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Revoke Moderator Role: This flow allows members to veto and conveners to revoke the Moderator role.",
+            nameDescription: "Revoke Assessor Role: This flow allows Participants to veto and Stewards to revoke the Assessor role.",
             mandateIds: mandateIds
         }));
 
-        // members: veto revoking moderator role.
+        // Participants: veto revoking Assessor role.
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = 51% majority
         conditions.quorum = 70; // = Note: high threshold.
-        conditions.needFulfilled = mandateCount - 1; // The moderator needs to have been assigned in the first place..
+        conditions.needFulfilled = mandateCount - 1; // The Assessor needs to have been assigned in the first place..
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Revoke Moderator Role: Members can veto revoking the Moderator role from an account.",
+                nameDescription: "Veto Revoke Assessor Role: Participants can veto revoking the Assessor role from an account.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -461,22 +461,22 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // conveners: revoke moderator role.
+        // Stewards: revoke Assessor role.
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners
+        conditions.allowedRole = 2; // = Stewards
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = simple majority
         conditions.quorum = 30; // = relatively low threshold.
         conditions.needNotFulfilled = mandateCount - 1; // need the veto to have NOT been fulfilled.
-        conditions.needFulfilled = mandateCount - 2; // The moderator role needs to have been assigned.
+        conditions.needFulfilled = mandateCount - 2; // The Assessor role needs to have been assigned.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Revoke Moderator Role: Conveners can revoke the Moderator role from an account.",
+                nameDescription: "Revoke Assessor Role: Stewards can revoke the Assessor role from an account.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode( 
                     address(0), // target is its own powers contract
                     IPowers.revokeRole.selector, // function selector to call
-                    abi.encode(3), // params before (role id 3 = Moderators) // the static params
+                    abi.encode(3), // params before (role id 3 = Assessors) // the static params
                     inputParams, // the dynamic params (the input params of the parent mandate)
                     abi.encode() // no args after
                 ),
@@ -485,7 +485,7 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // ELECT CONVENERS //
+        // ELECT StewardS //
         mandateIds = new uint16[](4);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
@@ -493,7 +493,7 @@ contract IdeasDAO is DeploySetup {
         mandateIds[3] = mandateCount + 4;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Elect Conveners: This flow includes the creation, voting, tallying, and cleanup of an election for Conveners.",
+            nameDescription: "Elect Stewards: This flow includes the creation, voting, tallying, and cleanup of an election for Stewards.",
             mandateIds: mandateIds
         }));
 
@@ -502,17 +502,17 @@ contract IdeasDAO is DeploySetup {
         inputParams[1] = "uint48 StartBlock";
         inputParams[2] = "uint48 EndBlock";
 
-        // Members: create election
+        // Participants: create election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.throttleExecution = minutesToBlocks(120, helperConfig.getBlocksPerHour(block.chainid)); // = once every 2 hours
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Create a Convener election: an election for the convener role can be initiated be any member.",
+                nameDescription: "Create a Steward election: an election for the Steward role can be initiated be any Participant.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    ElectionList.createElection.selector, // selector
+                    electionRegistry, // election list contract
+                    ElectionRegistry.createElection.selector, // selector
                     inputParams
                 ),
                 conditions: conditions
@@ -520,36 +520,36 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: Open Vote for Convener election
+        // Participants: Open Vote for Steward election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
-        conditions.needFulfilled = mandateCount - 1; // = Create Convener election
+        conditions.allowedRole = 1; // = Participants
+        conditions.needFulfilled = mandateCount - 1; // = Create Steward election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Open voting for Convener election: Members can open the vote for a convener election. This will create a dedicated vote mandate.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_CreateVoteMandate"),
+                nameDescription: "Open voting for Steward election: Participants can open the vote for a Steward election. This will create a dedicated vote mandate.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_CreateVoteMandate"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Vote"), // the vote mandate address
+                    electionRegistry, // election list contract
+                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Vote"), // the vote mandate address
                     1, // the max number of votes a voter can cast
-                    1 // the role Id allowed to vote (Members)
+                    1 // the role Id allowed to vote (Participants)
                 ),
                 conditions: conditions
             })
         );
         delete conditions;
 
-        // Members: Tally election
+        // Participants: Tally election
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.needFulfilled = mandateCount - 1; // = Open Vote election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Tally Convener elections: After a convener election has finished, assign the Convener role to the winners.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Tally"),
+                nameDescription: "Tally Steward elections: After a Steward election has finished, assign the Steward role to the winners.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Tally"),
                 config: abi.encode(
-                    electionList,
-                    2, // RoleId for Conveners
+                    electionRegistry,
+                    2, // RoleId for Stewards
                     3 // Max role holders
                 ),
                 conditions: conditions
@@ -557,14 +557,14 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: clean up Convener election
+        // Participants: clean up Steward election
         mandateCount++;
         conditions.allowedRole = 1;
-        conditions.needFulfilled = mandateCount - 1; // = Tally Convener election
+        conditions.needFulfilled = mandateCount - 1; // = Tally Steward election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Clean up Convener election: After a convener election has finished, clean up related mandates.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_CleanUpVoteMandate"),
+                nameDescription: "Clean up Steward election: After a Steward election has finished, clean up related mandates.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_CleanUpVoteMandate"),
                 config: abi.encode(mandateCount - 2), // The create vote mandate)
                 conditions: conditions
             })
@@ -580,17 +580,17 @@ contract IdeasDAO is DeploySetup {
         mandateIds[4] = mandateCount + 5;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Vote of No Confidence: This flow allows members to call a vote of no confidence to revoke Convener statuses and hold a new election.",
+            nameDescription: "Vote of No Confidence: This flow allows Participants to call a vote of no confidence to revoke Steward statuses and hold a new election.",
             mandateIds: mandateIds
         }));
 
-        // very similar to elect conveners, but no throttle, higher threshold and ALL executives get role revoked the moment the first mandate passes.
+        // very similar to elect Stewards, but no throttle, higher threshold and ALL executives get role revoked the moment the first mandate passes.
         inputParams = new string[](3);
         inputParams[0] = "string Title";
         inputParams[1] = "uint48 StartBlock";
         inputParams[2] = "uint48 EndBlock";
 
-        // Members: Vote of No Confidence 
+        // Participants: Vote of No Confidence 
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
@@ -598,7 +598,7 @@ contract IdeasDAO is DeploySetup {
         conditions.quorum = 60; // = high quorum 
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Vote of No Confidence: Revoke Convener statuses.",
+                nameDescription: "Vote of No Confidence: Revoke Steward statuses.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "RevokeAccountsRoleId"),
                 config: abi.encode(
                     2, // roleId
@@ -609,17 +609,17 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: create Convener election
+        // Participants: create Steward election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members (should be Convener according to MD, but code says Members)
+        conditions.allowedRole = 1; // = Participants (should be Steward according to MD, but code says Participants)
         conditions.needFulfilled = mandateCount - 1; // = previous Vote of No Confidence mandate. Note: NO throttle on this one.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Create a Convener election: an election for the convener role can be initiated be any member.",
+                nameDescription: "Create a Steward election: an election for the Steward role can be initiated be any Participant.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    ElectionList.createElection.selector, // selector
+                    electionRegistry, // election list contract
+                    ElectionRegistry.createElection.selector, // selector
                     inputParams
                 ),
                 conditions: conditions
@@ -627,36 +627,36 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: Open Vote for election
+        // Participants: Open Vote for election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.needFulfilled = mandateCount - 1; // = Create election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Open voting for Convener election: Members can open the vote for a convener election. This will create a dedicated vote mandate.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_CreateVoteMandate"),
+                nameDescription: "Open voting for Steward election: Participants can open the vote for a Steward election. This will create a dedicated vote mandate.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_CreateVoteMandate"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Vote"), // the vote mandate address
+                    electionRegistry, // election list contract
+                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Vote"), // the vote mandate address
                     1, // the max number of votes a voter can cast
-                    1 // the role Id allowed to vote (Members)
+                    1 // the role Id allowed to vote (Participants)
                 ),
                 conditions: conditions
             })
         );
         delete conditions;
 
-        // Members: Tally election
+        // Participants: Tally election
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.needFulfilled = mandateCount - 1; // = Open Vote election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Tally Convener elections: After a convener election has finished, assign the Convener role to the winners.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Tally"),
+                nameDescription: "Tally Steward elections: After a Steward election has finished, assign the Steward role to the winners.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Tally"),
                 config: abi.encode(
-                    electionList,
-                    2, // RoleId for Conveners
+                    electionRegistry,
+                    2, // RoleId for Stewards
                     5 // Max role holders
                 ),
                 conditions: conditions
@@ -664,13 +664,13 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: clean up Convener election
+        // Participants: clean up Steward election
         mandateCount++;
         conditions.allowedRole = 1;
-        conditions.needFulfilled = mandateCount - 1; // = Tally Convener election
+        conditions.needFulfilled = mandateCount - 1; // = Tally Steward election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Clean up Convener election: After a convener election has finished, clean up related mandates.",
+                nameDescription: "Clean up Steward election: After a Steward election has finished, clean up related mandates.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_OnReturnValue"),
                 config: abi.encode( 
                     address(0), // target is its own powers contract
@@ -691,19 +691,19 @@ contract IdeasDAO is DeploySetup {
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Nominate for Election: This flow allows members to nominate themselves or revoke their nomination for an election.",
+            nameDescription: "Nominate for Election: This flow allows Participants to nominate themselves or revoke their nomination for an election.",
             mandateIds: mandateIds
         }));
 
-        // Members: Nominate for Executive election
+        // Participants: Nominate for Executive election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members (should be Conveners according to MD, but code says Members)
+        conditions.allowedRole = 1; // = Participants (should be Stewards according to MD, but code says Participants)
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Nominate for election: any member can nominate for an election.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Nominate"),
+                nameDescription: "Nominate for election: any Participant can nominate for an election.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Nominate"),
                 config: abi.encode(
-                    electionList, // election list contract
+                    electionRegistry, // election list contract
                     true // nominate as candidate
                 ),
                 conditions: conditions
@@ -711,15 +711,15 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members revoke nomination for Executive election.
+        // Participants revoke nomination for Executive election.
         mandateCount++;
-        conditions.allowedRole = 1; // = Members (should be Conveners according to MD, but code says Members) 
+        conditions.allowedRole = 1; // = Participants (should be Stewards according to MD, but code says Participants) 
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Revoke nomination for election: any member can revoke their nomination for an election.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Nominate"),
+                nameDescription: "Revoke nomination for election: any Participant can revoke their nomination for an election.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Nominate"),
                 config: abi.encode(
-                    electionList, // election list contract
+                    electionRegistry, // election list contract
                     false // revoke nomination
                 ),
                 conditions: conditions
@@ -737,7 +737,7 @@ contract IdeasDAO is DeploySetup {
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Adopt Mandates: This flow allows for the adoption of new mandates, initiated by Conveners and subject to veto by Members.",
+            nameDescription: "Adopt Mandates: This flow allows for the adoption of new mandates, initiated by Stewards and subject to veto by Participants.",
             mandateIds: mandateIds
         }));
 
@@ -746,15 +746,15 @@ contract IdeasDAO is DeploySetup {
         inputParams[0] = "address[] mandates";
         inputParams[1] = "uint256[] roleIds";
 
-        // Members: Veto Adopting Mandates
+        // Participants: Veto Adopting Mandates
         mandateCount++;
-        conditions.allowedRole = 1; // Members
+        conditions.allowedRole = 1; // Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
         conditions.succeedAt = 66;
         conditions.quorum = 77;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Adopting Mandates: Members can veto proposals to adopt new mandates",
+                nameDescription: "Veto Adopting Mandates: Participants can veto proposals to adopt new mandates",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -762,16 +762,16 @@ contract IdeasDAO is DeploySetup {
         );
         delete conditions;
 
-        // Conveners: Adopt Mandates
+        // Stewards: Adopt Mandates
         mandateCount++;
-        conditions.allowedRole = 2; // Conveners
+        conditions.allowedRole = 2; // Stewards
         conditions.needNotFulfilled = mandateCount - 1;
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
         conditions.succeedAt = 66;
         conditions.quorum = 80;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Adopt new Mandates: Conveners can adopt new mandates into the organization",
+                nameDescription: "Adopt new Mandates: Stewards can adopt new mandates into the organization",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Adopt_Mandates"),
                 config: abi.encode(),
                 conditions: conditions

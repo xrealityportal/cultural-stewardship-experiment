@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import { console2 } from "forge-std/console2.sol";
-import { DeploySetup } from "./PrimaryDAO.s.sol";
+import { DeploySetup } from "./PrimaryLayer.s.sol";
 import { PowersTypes } from "@lib/powers-monorepo/solidity/src/interfaces/PowersTypes.sol";
 import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
@@ -12,7 +12,7 @@ import { ZKPassportHelper } from "@lib/circuits/src/solidity/src/ZKPassportHelpe
 import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersFactory.sol";
 import { PowersDeployer } from "@lib/powers-monorepo/solidity/src/helpers/PowersDeployer.sol";
 
-contract PhysicalDAO is DeploySetup {
+contract PhysicalLayer is DeploySetup {
     PowersTypes.Conditions conditions;
     PowersTypes.Flow[] flows;
 
@@ -26,32 +26,32 @@ contract PhysicalDAO is DeploySetup {
     //////////////////////////////////////////////////////////////////////
     function run() external { 
         // Deploy factories first (empty) so their addresses are available
-        console2.log("Deploying Physical sub-DAO factory (contract only)...");
+        console2.log("Deploying Physical Layer factory (contract only)...");
         vm.startBroadcast();
-        PowersDeployer physicalDaoDeployer = new PowersDeployer();  // £todo: I think this can be deployed as a singleton contract
+        PowersDeployer PhysicalLayerDeployer = new PowersDeployer();  // £todo: I think this can be deployed as a singleton contract
         powersFactory = new PowersFactory(
-            "Physical sub-DAO", // name
-            string.concat(baseURI, "physicalSubDao.json"), // uri
+            "Physical Layer", // name
+            string.concat(baseURI, "physicalLayer.json"), // uri
             helperConfig.getMaxCallDataLength(block.chainid), // max call data length
             helperConfig.getMaxReturnDataLength(block.chainid), // max return data length
             helperConfig.getMaxExecutionsLength(block.chainid), // max executions length 
-            address(physicalDaoDeployer)
+            address(PhysicalLayerDeployer)
         );
         vm.stopBroadcast(); 
-        console2.log("Physical sub-DAO factory deployed at:", address(powersFactory));
+        console2.log("Physical Layer factory deployed at:", address(powersFactory));
     }
 
     //////////////////////////////////////////////////////////////////////
     //                          CONSTITUTE                              //
     //////////////////////////////////////////////////////////////////////
     function constitutePowers(
-        address primaryDAO,
+        address PrimaryLayer,
         address governed721,
         address activityToken,
         address nominees,
         uint16 mintPoapTokenId
     ) public {
-        _createConstitution(primaryDAO, governed721, activityToken, nominees, mintPoapTokenId);
+        _createConstitution(PrimaryLayer, governed721, activityToken, nominees, mintPoapTokenId);
         
         PowersTypes.MandateInitData[] memory constitutionPacked = packageInitData(constitution, PACKAGE_SIZE, 1);
         vm.startBroadcast();
@@ -71,7 +71,7 @@ contract PhysicalDAO is DeploySetup {
     //                        CONSTITUTION                              //
     //////////////////////////////////////////////////////////////////////
     function _createConstitution(
-        address primaryDAO,
+        address PrimaryLayer,
         address governed721,
         address activityToken,
         address nominees,
@@ -84,15 +84,15 @@ contract PhysicalDAO is DeploySetup {
 
         // setup role labels // 
         calldatas = new bytes[](10);
-        calldatas[0] = abi.encodeWithSelector(IPowers.labelRole.selector, 0, "Admin", string.concat(baseURI, "admin.json"));  
-        calldatas[1] = abi.encodeWithSelector(IPowers.labelRole.selector, type(uint256).max, "Public", string.concat(baseURI, "public.json")); 
-        calldatas[2] = abi.encodeWithSelector(IPowers.labelRole.selector, 1, "Attendee", string.concat(baseURI, "attendee.json"));
-        calldatas[3] = abi.encodeWithSelector(IPowers.labelRole.selector, 2, "Convener", string.concat(baseURI, "convener.json")); 
-        calldatas[4] = abi.encodeWithSelector(IPowers.labelRole.selector, 3, "Legal Representative", string.concat(baseURI, "legalRep.json"));
-        calldatas[5] = abi.encodeWithSelector(IPowers.labelRole.selector, 6, "Primary DAO", string.concat(baseURI, "primaryDao_role.json"));
+        calldatas[0] = abi.encodeWithSelector(IPowers.labelRole.selector, 0, "Setup Initiator", "");  
+        calldatas[1] = abi.encodeWithSelector(IPowers.labelRole.selector, type(uint256).max, "Public", ""); 
+        calldatas[2] = abi.encodeWithSelector(IPowers.labelRole.selector, 1, "Attendee", ""); 
+        calldatas[3] = abi.encodeWithSelector(IPowers.labelRole.selector, 2, "Steward", ""); 
+        calldatas[4] = abi.encodeWithSelector(IPowers.labelRole.selector, 3, "Legal Interfacer", "");
+        calldatas[5] = abi.encodeWithSelector(IPowers.labelRole.selector, 6, "Primary Layer", "");
         calldatas[6] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, cedars);
         calldatas[7] = abi.encodeWithSelector(IPowers.assignRole.selector, 2, cedars);
-        calldatas[8] = abi.encodeWithSelector(IPowers.assignRole.selector, 6, address(primaryDAO)); 
+        calldatas[8] = abi.encodeWithSelector(IPowers.assignRole.selector, 6, address(PrimaryLayer)); 
         calldatas[9] = abi.encodeWithSelector(IPowers.revokeMandate.selector, mandateCount + 1); // revoke mandate 1 after use. 
 
         mandateCount++;
@@ -111,14 +111,14 @@ contract PhysicalDAO is DeploySetup {
         //                      EXECUTIVE MANDATES                          //
         //////////////////////////////////////////////////////////////////////
         // £NB: Minting and setting the URI no all managed externally from this DAO. 
-        // The artist has to assign the sub-DAO as approved to transfer artworks. 
+        // The artist has to assign the layer as approved to transfer artworks. 
   
-        // CONVENERS FORCE SELL NFT ART WORK //
+        // StewardS FORCE SELL NFT ART WORK //
         uint16[] memory mandateIds = new uint16[](1);
         mandateIds[0] = mandateCount + 1;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Sell NFT artwork: This flow allows conveners to sell NFT art works, automatically transferring the NFT and distributing payments.",
+            nameDescription: "Sell NFT artwork: This flow allows Stewards to sell NFT art works, automatically transferring the NFT and distributing payments.",
             mandateIds: mandateIds
         }));
 
@@ -128,14 +128,14 @@ contract PhysicalDAO is DeploySetup {
         inputParams[1] = "address newOwner";
         inputParams[2] = "uint256 TokenId";
         inputParams[3] = "bytes Data"; // encoded PaymentToken + quantity + nonce. 
-        // Note that technically the Physical sub-DAO can pay for sale if the buyer paid the Sub-DAO directly. It would result in the sub-DAO owning the NFT, while buyer has the physical artwork. 
+        // Note that technically the Physical Layer can pay for sale if the buyer paid the Sub-DAO directly. It would result in the layer owning the NFT, while buyer has the physical artwork. 
 
-        // NB: this will only work if the physical sub-DAO has been approved by the artist to transfer the art work NFTs. This is to ensure that artists have control over which art works can be sold through the sub-DAO.
+        // NB: this will only work if the physical layer has been approved by the artist to transfer the art work NFTs. This is to ensure that artists have control over which art works can be sold through the layer.
         mandateCount++;
-        conditions.allowedRole = 2; // Conveners. 
+        conditions.allowedRole = 2; // Stewards. 
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Sell NFT artwork: conveners can sell NFT art works, which will automatically transfer from the owner of the NFT to the buyer and distribute payments according to splits set by the governed721DAO.",
+                nameDescription: "Sell NFT artwork: Stewards can sell NFT art works, which will automatically transfer from the owner of the NFT to the buyer and distribute payments according to splits set by the governed721DAO.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
                     governed721,
@@ -152,7 +152,7 @@ contract PhysicalDAO is DeploySetup {
         mandateIds[0] = mandateCount + 1;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Payment of Receipts: This flow allows Conveners to submit and approve payment of receipts.",
+            nameDescription: "Payment of Receipts: This flow allows Stewards to submit and approve payment of receipts.",
             mandateIds: mandateIds
         }));
 
@@ -161,9 +161,9 @@ contract PhysicalDAO is DeploySetup {
         inputParams[1] = "uint256 Amount";
         inputParams[2] = "address PayableTo";
 
-        // Conveners: Submit & approve Payment of Receipt
+        // Stewards: Submit & approve Payment of Receipt
         mandateCount++;
-        conditions.allowedRole = 2; // Conveners can propose and vote on receipts.   
+        conditions.allowedRole = 2; // Stewards can propose and vote on receipts.   
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
         conditions.succeedAt = 67;
         conditions.quorum = 50; 
@@ -182,26 +182,26 @@ contract PhysicalDAO is DeploySetup {
         mandateIds[0] = mandateCount + 1;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Mint POAPs for Attendees: This flow allows Conveners to mint POAPs for event attendees.",
+            nameDescription: "Mint POAPs for Attendees: This flow allows Stewards to mint POAPs for event attendees.",
             mandateIds: mandateIds
         }));
 
         inputParams = new string[](1);
         inputParams[0] = "address To";
 
-        // Conveners: Mint POAPs for attendees
+        // Stewards: Mint POAPs for attendees
         // Note: for now this is managed through a bespoke Soulbound1155 contract. 
         // Before a physical event is organised, this should be implemented through either POAP.xyz, or IYK protocols.    
         mandateCount++;
-        conditions.allowedRole = 1; // = Conveners
+        conditions.allowedRole = 1; // = Stewards
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Mint POAP: Any Convener can mint a POAP.",
+                nameDescription: "Mint POAP: Any Steward can mint a POAP.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ExternalAction_Simple"),
                 config: abi.encode(
-                    address(primaryDAO),
+                    address(PrimaryLayer),
                     mintPoapTokenId, // parent mandate id (the mint POAP token at primary DAO mandate)
-                    "Requesting minting of POAP from Primary DAO",
+                    "Requesting minting of POAP from Primary Layer",
                     inputParams
                 ),
                 conditions: conditions
@@ -215,19 +215,19 @@ contract PhysicalDAO is DeploySetup {
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Mint 'Merit' NFTs: This flow allows Conveners to propose and Attendees to vote on minting 'Merit' NFTs for attendees.",
+            nameDescription: "Mint 'Merit' NFTs: This flow allows Stewards to propose and Attendees to vote on minting 'Merit' NFTs for attendees.",
             mandateIds: mandateIds
         }));
 
         inputParams = new string[](1);
         inputParams[0] = "address Attendee"; // attendee being considered
 
-        // Convener: proposes minting of 'Merit' NFTs to attendees based on their contributions (e.g. participation in events, volunteering, etc.).
+        // Steward: proposes minting of 'Merit' NFTs to attendees based on their contributions (e.g. participation in events, volunteering, etc.).
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners
+        conditions.allowedRole = 2; // = Stewards
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Propose minting 'Merit' NFTs for attendees: Conveners can propose minting 'Merit' NFTs to recognize attendees' contributions.",
+                nameDescription: "Propose minting 'Merit' NFTs for attendees: Stewards can propose minting 'Merit' NFTs to recognize attendees' contributions.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams), // input params can include details about the proposal, such as the criteria for awarding 'Merit' NFTs and the attendees being considered.
                 conditions: conditions
@@ -266,7 +266,7 @@ contract PhysicalDAO is DeploySetup {
         // MINT & DISTRIBUTE 'MERIT' NFTS TO ARTIST THROUGH VOTING ON ART WORKS //
         // £TODO - implement? 
 
-        // £todo Still need some type of payment for conveners. - not solved yet. 
+        // £todo Still need some type of payment for Stewards. - not solved yet. 
 
         // REDEEM MERIT NFTS FOR REWARD  //
         // inputParams = new string[](1);
@@ -321,15 +321,15 @@ contract PhysicalDAO is DeploySetup {
         inputParams = new string[](1);
         inputParams[0] = "string newUri"; 
 
-        // Conveners: Update URI
+        // Stewards: Update URI
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners
+        conditions.allowedRole = 2; // = Stewards
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 66; // = 2/3 majority
         conditions.quorum = 66; // = 66% quorum
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Update URI: Set allowed token for Physical sub-DAO",
+                nameDescription: "Update URI: Set allowed token for Physical Layer",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
                     address(0), // target address is its own powers contract
@@ -343,7 +343,7 @@ contract PhysicalDAO is DeploySetup {
 
         // TRANSFER TOKENS INTO TREASURY //
         mandateCount++;
-        conditions.allowedRole = 2; // = Conveners. Any convener can call this mandate.
+        conditions.allowedRole = 2; // = Stewards. Any Steward can call this mandate.
         constitution.push(
             PowersTypes.MandateInitData({
                 nameDescription: "Transfer tokens to treasury: Any tokens accidently sent to the DAO can be recovered by sending them to the treasury",
@@ -389,15 +389,15 @@ contract PhysicalDAO is DeploySetup {
         );
         delete conditions;
 
-        // SELECT CONVENERS //
+        // SELECT StewardS //
         mandateIds = new uint16[](4);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
         mandateIds[2] = mandateCount + 3;
-        mandateIds[3] = mandateCount + 4;
+        mandateIds[3] = mandateCount + 4; 
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Select Conveners: This flow allows for the nomination, selection, and peer election of conveners.",
+            nameDescription: "Select Stewards: This flow allows for the nomination, selection, and peer election of Stewards.",
             mandateIds: mandateIds
         }));
 
@@ -406,10 +406,10 @@ contract PhysicalDAO is DeploySetup {
 
         // anybody: do ZKP check: age >= 18 
         mandateCount++;
-        conditions.allowedRole = type(uint256).max; // = public. anyone can pass the ZKP check to propose a legal representative for the Physical sub-DAO.
+        conditions.allowedRole = type(uint256).max; // = public. anyone can pass the ZKP check to propose a legal Interfacer for the Physical Layer.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "ZK-Passport Check Age: Anyone over the age of 18 can propose to be a convener for the Physical sub-DAO",
+                nameDescription: "ZK-Passport Check Age: Anyone over the age of 18 can propose to be a Steward for the Physical Layer",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ZKPassport_Check"),
                 config: abi.encode(
                     inputParams,
@@ -424,13 +424,13 @@ contract PhysicalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Anyone: Nominate for selection to be convener.
+        // Anyone: Nominate for selection to be Steward.
         mandateCount++;
         conditions.allowedRole = type(uint256).max; // = public
-        conditions.needFulfilled = mandateCount - 1; // need the previous ZKP check mandate to be fulfilled to nominate for convener selection.
+        conditions.needFulfilled = mandateCount - 1; // need the previous ZKP check mandate to be fulfilled to nominate for Steward selection.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Nominate for selection: any member can nominate to be selected for convener role.",
+                nameDescription: "Nominate for selection: any member can nominate to be selected for Steward role.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Nominate"),
                 config: abi.encode(
                     nominees, // election list contract
@@ -446,10 +446,10 @@ contract PhysicalDAO is DeploySetup {
         inputParams = new string[](1);
         inputParams[0] = "address Nominee"; // the address of the nominee whose nomination is to be revoked.
 
-        conditions.allowedRole = 3; // = legal representatives.
+        conditions.allowedRole = 3; // = legal Interfacers.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Revoke nomination for election: Legal Representatives can revoke nominations for convener elections.",
+                nameDescription: "Revoke nomination for election: Legal Interfacers can revoke nominations for Steward elections.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode(
                     nominees, // election list contract
@@ -463,59 +463,45 @@ contract PhysicalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Legal Representatives: adopt peer select mandate to select conveners from the pool of nominees. 
+        // Legal Interfacers: adopt peer select mandate to select Stewards from the pool of nominees. 
         PowersTypes.MandateInitData[] memory initData = new PowersTypes.MandateInitData[](1);
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = simple majority
         conditions.quorum = 80; // = 80% quorum
         initData[0] = PowersTypes.MandateInitData({
-                nameDescription: "Select Conveners: Legal Representatives can select conveners from the pool of nominees.",
+                nameDescription: "Select Stewards: Legal Interfacers can select Stewards from the pool of nominees.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "PeerSelect"),
                 config: abi.encode(
                     3, // numberToSelect
-                    2, // RoleId for Conveners
+                    2, // RoleId for Stewards
                     nominees // election list contract // 
                 ),
                 conditions: conditions
             });
         delete conditions;
 
-        // mandateCount++;
-        // conditions.allowedRole = 3; // = legal representatives.
-        // constitution.push(
-        //     PowersTypes.MandateInitData({
-        //         nameDescription: "Adopt Peer Select Mandate: Legal Representatives can adopt the Peer Select mandate to select conveners from the pool of nominees.",
-        //         targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Adopt_Preset_Mandates"),
-        //         config: abi.encode(
-        //             initData // the peer select mandate init data. 
-        //         ),
-        //         conditions: conditions
-        //     })
-        // );
-        // delete conditions;
-
         // ASSIGN LEGAL REPS //
         mandateIds = new uint16[](1);
         mandateIds[0] = mandateCount + 1;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Assign Legal Representatives: This flow allows the Primary DAO to assign legal representatives.",
+            nameDescription: "Assign Legal Interfacers: This flow allows the Primary Layer to assign legal Interfacers.",
             mandateIds: mandateIds
         }));
 
-        // Primary DAO: assign Legal Representative. 
+        // Primary Layer: assign Legal Interfacer. 
         mandateCount++;
         inputParams = new string[](2);
-        inputParams[0] = "address Representative"; 
-        conditions.allowedRole = 6; // = Primary DAO.
+        inputParams[0] = "address Interfacer"; 
+        conditions.allowedRole = 6; // = Primary Layer.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Assign Legal Representatives: Primary DAO can assign legal representatives, who have the power to adopt and revoke executive mandates.",
+                nameDescription: "Assign Legal Interfacers: Primary Layer can assign legal Interfacers, who have the power to adopt and revoke executive mandates.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode(
                     address(0), // target is its own powers contract
                     IPowers.assignRole.selector,
-                    abi.encode(3), // roleId of Legal Representative role
+                    abi.encode(3), // roleId of Legal Interfacer role
                     inputParams,
                     abi.encode() // no params after
                 ),
@@ -523,14 +509,11 @@ contract PhysicalDAO is DeploySetup {
             })
         );
         delete conditions;
-        assignRepsMandateId = mandateCount;
-        // These should be assigned directly by Primary DAO. 
-        // -- should have a specific related governance flow to select these. + ZKP check.  
+        assignRepsMandateId = mandateCount; 
         
-
-        // //////////////////////////////////////////////////////////////////////
-        // //                        REFORM MANDATES                           //
-        // //////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////
+        //                        REFORM MANDATES                           //
+        //////////////////////////////////////////////////////////////////////
 
         // ADOPT MANDATES //
         mandateIds = new uint16[](3);
@@ -539,7 +522,7 @@ contract PhysicalDAO is DeploySetup {
         mandateIds[2] = mandateCount + 3;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Adopt Mandates: This flow allows for the adoption of new mandates, initiated by Members, adopted by Conveners, and subject to veto by the Primary DAO.",
+            nameDescription: "Adopt Mandates: This flow allows for the adoption of new mandates, initiated by Members, adopted by Stewards, and subject to veto by the Primary Layer.",
             mandateIds: mandateIds
         }));
 
@@ -563,13 +546,13 @@ contract PhysicalDAO is DeploySetup {
         );
         delete conditions;
 
-        // PrimaryDAO: Veto Adopting Mandates
+        // PrimaryLayer: Veto Adopting Mandates
         mandateCount++;
-        conditions.allowedRole = 6; // PrimaryDAO = role 6. 
+        conditions.allowedRole = 6; // PrimaryLayer = role 6. 
         conditions.needFulfilled = mandateCount - 1;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Adopting Mandates: PrimaryDAO can veto proposals to adopt new mandates", 
+                nameDescription: "Veto Adopting Mandates: PrimaryLayer can veto proposals to adopt new mandates", 
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(adoptMandatesParams),
                 conditions: conditions
@@ -577,9 +560,9 @@ contract PhysicalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Conveners: Adopt Mandates
+        // Stewards: Adopt Mandates
         mandateCount++;
-        conditions.allowedRole = 2; // Conveners
+        conditions.allowedRole = 2; // Stewards
         conditions.needFulfilled = mandateCount - 2;
         conditions.needNotFulfilled = mandateCount - 1;
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
@@ -587,7 +570,7 @@ contract PhysicalDAO is DeploySetup {
         conditions.quorum = 80;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Adopt new Mandates: Conveners can adopt new mandates into the organization",
+                nameDescription: "Adopt new Mandates: Stewards can adopt new mandates into the organization",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Adopt_Mandates"),
                 config: abi.encode(),
                 conditions: conditions
@@ -595,66 +578,45 @@ contract PhysicalDAO is DeploySetup {
         );
         delete conditions;
 
-        // LEGAL REPS ADOPT & REVOKE EXECUTIVE MANDATES //
+        // EDITING HERE 
+
+        // LEGAL REPS CAN PAUSE AND RESTART MANDATES //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Executive Mandates Management: This flow allows Legal Representatives to adopt or revoke executive mandates, effectively controlling the DAO's functional state.",
+            nameDescription: "Executive Mandates Management: This flow allows Legal Interfacers to adopt or revoke executive mandates, effectively controlling the DAO's functional state.",
             mandateIds: mandateIds
         }));
 
-        // (Effectively giving power to pause functioning of the sub-DAO). 
+        // (Effectively giving power to pause functioning of the layer). 
         // Mandates to be adopted / revoked: (£todo: for now this is a placeholder, need to decide which Mandates to place here!).  
-        /** 
-        The following mandates: 
-        - Sell NFT artwork
-        - Submit & approve payment of receipt
-        - Mint POAP for attendees
-        - Vote on 'Merit' NFT proposals 
-        - Update URI
-        */ 
+        string[] memory mandatesToPause = new string[](5);
+        mandatesToPause[0] = "Sell NFT artwork";
+        mandatesToPause[1] = "Submit & approve payment of receipt";
+        mandatesToPause[2] = "Mint POAP: Any Steward can mint a POAP";
+        mandatesToPause[3] = "Vote on 'Merit' NFT proposals";
+        mandatesToPause[4] = "Update URI";
+        (uint16[] memory indexFlows, uint16[] memory indexMandates) = findIndices(mandatesToPause, constitution, flows);
 
-        initData = new PowersTypes.MandateInitData[](1);
-        initData[0] = PowersTypes.MandateInitData({ 
-            nameDescription: "Deploy actvityToken Merit token: This mandate sets up a sub-DAO specific actvityToken token to be used for merit badges and other internal uses. The mandate self-destructs after execution.",
-            targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "PresetActions"),
-            config: abi.encode(targets, values, calldatas),
-            conditions: conditions
-        }); 
-
-        // // Legal Reps: Adopt Executive Mandates
-        // mandateCount++; 
-        // conditions.allowedRole = 3; // This is a legal representative mandate. Only legal reps can call it.
-        // conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // 5 minutes to vote
-        // conditions.succeedAt = 66; // 66% majority needed to pass the mandate
-        // conditions.quorum = 80; // 80% quorum needed to pass the mandate
-        // constitution.push(
-        //     PowersTypes.MandateInitData({
-        //         nameDescription: "Adopt Executive Mandates: The Legal Representatives adopt executive mandates, enabling the physical DAO to function.",
-        //         targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Adopt_Preset_Mandates"),
-        //         config: abi.encode(initData), // The mandates that will be adopted. 
-        //         conditions: conditions
-        //     })
-        // );
-        // delete conditions;
-
-        // Legal Reps: Revoke Executive Mandates
-        // mandateCount++;
-        // conditions.allowedRole = 3; // This is a legal representative mandate. Only legal reps
-        // conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // 5 minutes to vote
-        // conditions.succeedAt = 66; // 66% majority needed to pass the mandate
-        // conditions.quorum = 80; // 80% quorum needed to pass the mandate
-        // conditions.needFulfilled = mandateCount - 1; // need the previous mandate to have been fulfilled for this revoke mandate to be valid.
-        // constitution.push(
-        //     PowersTypes.MandateInitData({
-        //         nameDescription: "Revoke Executive Mandates: The Legal Representatives can revoke executive mandates, effectively pausing the physical DAO.",
-        //         targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Revoke_Mandates_Prepackaged"),
-        //         config: abi.encode(), // The mandates that will be revoked. 
-        //         conditions: conditions
-        //     })
-        // );
-        // delete conditions;
+        // Legal Interfacers: Pause Mandates
+        mandateCount++;
+        conditions.allowedRole = 3; // Legal Interfacers
+        conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
+        conditions.succeedAt = 66;
+        conditions.quorum = 80;
+        constitution.push(
+            PowersTypes.MandateInitData({
+                nameDescription: "Pause Mandates: Legal Interfacers can pause mandates in the organization",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "PauseMandates"),
+                config: abi.encode(
+                    indexFlows,
+                    indexMandates
+                ),
+                conditions: conditions
+            })
+        );
+        delete conditions;
     }
 }

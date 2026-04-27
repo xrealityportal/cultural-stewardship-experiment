@@ -1,8 +1,8 @@
 {
   "icon": "",
-  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeigawgiso7mndeswvhxgmkad2dg4fduwyojsk5zl5cz2lyyxc7jvae/digitalSubDao.png",
+  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeih77m4lyvnjtlfjhdxlallszwylnfygjlhvolursvd4kwlyq4qceu/ideasLayer.png",
   "description": 
-    "Manages code repositories, commits, and digital representation of the organisation and its sub-DAOs. The parent DAO holds some veto powers over this DAO.",
+    "Manages concepts, digital interfaces, and its own legislative frameworks. It acts as a gate keeper to forum group chats and has the power to initiate the creation of a Physical Layer. It does not have an allowance at the parent DAO.",
   "website": "https://github.com/publius-projects/powers-monorepo/tree/main/frontend/organisations",
   "codeOfConduct": "https://github.com/publius-projects/powers-monorepo/blob/main/CODE_OF_CONDUCT.md", 
   "disputeResolution": "",
@@ -20,7 +20,7 @@
   },
   "parentContracts": [ 
     {
-      "title": "Primary DAO",
+      "title": "Primary Layer",
       "address": "0xD7c83ba6665EEb7b7360f617e49a3f6D616600C6"
     }
   ],

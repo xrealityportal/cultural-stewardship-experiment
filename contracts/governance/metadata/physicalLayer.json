@@ -1,8 +1,8 @@
 {
   "icon": "",
-  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeigawgiso7mndeswvhxgmkad2dg4fduwyojsk5zl5cz2lyyxc7jvae/ideasSubDao.png",
+  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeih77m4lyvnjtlfjhdxlallszwylnfygjlhvolursvd4kwlyq4qceu/physicalLayer.png",
   "description": 
-    "Manages concepts, digital interfaces, and its own legislative frameworks. It acts as a gate keeper to forum group chats and has the power to initiate the creation of a Physical sub-DAO. It does not have an allowance at the parent DAO.",
+    "Manages physical manifestations (e.g., access to spaces, rent, legal logs). It is initiated by an Ideas Layer. It has an allowance at the parent DAO.",
   "website": "https://github.com/publius-projects/powers-monorepo/tree/main/frontend/organisations",
   "codeOfConduct": "https://github.com/publius-projects/powers-monorepo/blob/main/CODE_OF_CONDUCT.md", 
   "disputeResolution": "",
@@ -20,7 +20,7 @@
   },
   "parentContracts": [ 
     {
-      "title": "Primary DAO",
+      "title": "Primary Layer",
       "address": "0xD7c83ba6665EEb7b7360f617e49a3f6D616600C6"
     }
   ],

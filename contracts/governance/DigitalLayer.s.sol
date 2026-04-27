@@ -8,9 +8,9 @@ import { DeploySetup } from "./DeploySetup.s.sol";
 import { PowersTypes } from "@lib/powers-monorepo/solidity/src/interfaces/PowersTypes.sol";
 import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
-import { ElectionList } from "@lib/powers-monorepo/solidity/src/helpers/ElectionList.sol";
+import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 
-contract DigitalDAO is DeploySetup {
+contract DigitalLayer is DeploySetup {
     PowersTypes.Conditions conditions;
     PowersTypes.Flow[] flows;
 
@@ -21,11 +21,11 @@ contract DigitalDAO is DeploySetup {
     //                        INITIALISATION                            //
     //////////////////////////////////////////////////////////////////////
     function run() public {
-        console2.log("Deploying Digital sub-DAO...");
+        console2.log("Deploying Digital Layer...");
         vm.startBroadcast();
             powers = new Powers(
-                "Digital sub-DAO", // name
-                string.concat(baseURI, "digitalSubDao.json"),
+                "Digital Layer", // name
+                string.concat(baseURI, "digitalLayer.json"),
                 helperConfig.getMaxCallDataLength(block.chainid), // max call data length
                 helperConfig.getMaxReturnDataLength(block.chainid), // max return data length
                 helperConfig.getMaxExecutionsLength(block.chainid) // max executions length
@@ -37,11 +37,11 @@ contract DigitalDAO is DeploySetup {
     //                          CONSTITUTE                              //
     //////////////////////////////////////////////////////////////////////
     function constitutePowers(
-        address primaryDAO,
-        address electionList, 
-        uint16 requestAllowanceDigitalDAOId
+        address PrimaryLayer,
+        address electionRegistry, 
+        uint16 requestAllowanceDigitalLayerId
     ) public {
-        _createConstitution(primaryDAO, electionList, requestAllowanceDigitalDAOId);
+        _createConstitution(PrimaryLayer, electionRegistry, requestAllowanceDigitalLayerId);
         
         for (uint256 i = 0; i < constitution.length; i += PACKAGE_SIZE) {
             uint256 packageLength = constitution.length - i < PACKAGE_SIZE ? constitution.length - i : PACKAGE_SIZE;
@@ -69,9 +69,9 @@ contract DigitalDAO is DeploySetup {
     //                        CONSTITUTION                              //
     //////////////////////////////////////////////////////////////////////
     function _createConstitution(
-        address primaryDAO,
-        address electionList,
-        uint16 requestAllowanceDigitalDAOId
+        address PrimaryLayer,
+        address electionRegistry,
+        uint16 requestAllowanceDigitalLayerId
     ) internal {
         mandateCount = 0; // resetting mandate count.
 
@@ -79,15 +79,15 @@ contract DigitalDAO is DeploySetup {
         //                              SETUP                               //
         //////////////////////////////////////////////////////////////////////
         calldatas = new bytes[](10);
-        calldatas[0] = abi.encodeWithSelector(IPowers.labelRole.selector, 0, "Admin", "");  
+        calldatas[0] = abi.encodeWithSelector(IPowers.labelRole.selector, 0, "Setup Initiator", "");  
         calldatas[1] = abi.encodeWithSelector(IPowers.labelRole.selector, type(uint256).max, "Public", ""); 
-        calldatas[2] = abi.encodeWithSelector(IPowers.labelRole.selector, 1, "Members", ""); 
-        calldatas[3] = abi.encodeWithSelector(IPowers.labelRole.selector, 2, "Repository Admins", "");  // £todo: update metadata 
-        calldatas[4] = abi.encodeWithSelector(IPowers.labelRole.selector, 6, "Primary DAO", ""); 
+        calldatas[2] = abi.encodeWithSelector(IPowers.labelRole.selector, 1, "Participants", ""); 
+        calldatas[3] = abi.encodeWithSelector(IPowers.labelRole.selector, 2, "Repository Setup Initiators", "");  // £todo: update metadata 
+        calldatas[4] = abi.encodeWithSelector(IPowers.labelRole.selector, 6, "Primary Layer", ""); 
         calldatas[5] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, cedars);
         calldatas[6] = abi.encodeWithSelector(IPowers.assignRole.selector, 2, cedars);
         calldatas[7] = abi.encodeWithSelector(IPowers.assignRole.selector, 3, cedars);
-        calldatas[8] = abi.encodeWithSelector(IPowers.assignRole.selector, 6, primaryDAO);
+        calldatas[8] = abi.encodeWithSelector(IPowers.assignRole.selector, 6, PrimaryLayer);
         calldatas[9] = abi.encodeWithSelector(IPowers.revokeMandate.selector, mandateCount + 1); // revoke mandate 1 after use.
 
         mandateCount++;
@@ -112,7 +112,7 @@ contract DigitalDAO is DeploySetup {
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Request Allowances from Prime DAO: This flow includes the veto and request of allowances from the Primary DAO.",
+            nameDescription: "Request Allowances from Prime DAO: This flow includes the veto and request of allowances from the Primary Layer.",
             mandateIds: mandateIds
         }));
 
@@ -123,12 +123,12 @@ contract DigitalDAO is DeploySetup {
         inputParams[3] = "uint16 resetTimeMin";
         inputParams[4] = "uint32 resetBaseMin";
  
-        // Members: Veto request allowance from Primary DAO
+        // Participants: Veto request allowance from Primary Layer
         mandateCount++;
-        conditions.allowedRole = 1; // Members 
+        conditions.allowedRole = 1; // Participants 
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto request allowance: Members can veto a request for additional allowance", //
+                nameDescription: "Veto request allowance: Participants can veto a request for additional allowance", //
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -136,7 +136,7 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Repository admins: Request allowance from Primary DAO
+        // Repository admins: Request allowance from Primary Layer
         mandateCount++;
         conditions.allowedRole = 2; // Repository admins 
         conditions.needNotFulfilled = mandateCount - 1;
@@ -145,12 +145,12 @@ contract DigitalDAO is DeploySetup {
         conditions.quorum = 80;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Request allowance: Repository admins can request an allowance from the Primary DAO Safe Treasury.",
+                nameDescription: "Request allowance: Repository admins can request an allowance from the Primary Layer Safe Treasury.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ExternalAction_Simple"),
                 config: abi.encode(
-                    address(primaryDAO), // target contract
-                    requestAllowanceDigitalDAOId, // parent mandate id (the request allowance at primary DAO mandate)
-                    "Requesting allowance from Primary DAO Safe Treasury",
+                    address(PrimaryLayer), // target contract
+                    requestAllowanceDigitalLayerId, // parent mandate id (the request allowance at primary DAO mandate)
+                    "Requesting allowance from Primary Layer Safe Treasury",
                     inputParams // dynamic params (the input params of the parent mandate)
                 ),
                 conditions: conditions
@@ -233,15 +233,15 @@ contract DigitalDAO is DeploySetup {
         inputParams[1] = "uint256 Amount";
         inputParams[2] = "address PayableTo";
 
-        // Members: Submit a project (Payment Before Action)
+        // Participants: Submit a project (Payment Before Action)
         mandateCount++;
-        conditions.allowedRole = 1; // Members can propose a project.
+        conditions.allowedRole = 1; // Participants can propose a project.
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
         conditions.succeedAt = 51;
         conditions.quorum = 5; // note the low quorum to encourage proposals.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Submit a project for Funding: Any member can submit a project for funding.",
+                nameDescription: "Submit a project for Funding: Any Participant can submit a project for funding.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -288,7 +288,7 @@ contract DigitalDAO is DeploySetup {
         conditions.quorum = 66; // = 66% quorum
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Update URI: Set allowed token for Physical sub-DAO",
+                nameDescription: "Update URI: Set allowed token for Physical Layer",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
                     address(powers), // target address is its own powers contract
@@ -320,13 +320,13 @@ contract DigitalDAO is DeploySetup {
         //                      ELECTORAL MANDATES                          //
         //////////////////////////////////////////////////////////////////////
 
-        // ASSIGN MEMBERSHIP // -- on the basis of contributions to website
+        // ASSIGN ParticipantSHIP // -- on the basis of contributions to website
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Assign Membership: This flow allows users to apply for and claim member roles based on their GitHub contributions.",
+            nameDescription: "Assign Participantship: This flow allows users to apply for and claim Participant roles based on their GitHub contributions.",
             mandateIds: mandateIds
         }));
 
@@ -340,13 +340,13 @@ contract DigitalDAO is DeploySetup {
         roleIds[1] = 3;
         roleIds[2] = 4;
 
-        // Public: Apply for member role
+        // Public: Apply for Participant role
         // mandateCount++;
         // conditions.allowedRole = type(uint256).max; // Public
         // conditions.throttleExecution = minutesToBlocks(3, helperConfig.getBlocksPerHour(block.chainid)); // to avoid spamming, the mandate is throttled.
         // constitution.push(
         //     PowersTypes.MandateInitData({
-        //         nameDescription: "Apply for Member Role: Anyone can claim member roles based on their GitHub contributions to the DAO's repository", // crrently the path is set at cedars/powers
+        //         nameDescription: "Apply for Participant Role: Anyone can claim Participant roles based on their GitHub contributions to the DAO's repository", // crrently the path is set at cedars/powers
         //         targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Github_ClaimRoleWithSig"), // TODO: needs to be more configurable
         //         config: abi.encode(
         //             "develop", // branch
@@ -362,13 +362,13 @@ contract DigitalDAO is DeploySetup {
         // );
         // delete conditions;
 
-        // // Public: Claim Member Role
+        // // Public: Claim Participant Role
         // mandateCount++;
         // conditions.allowedRole = type(uint256).max; // Public
-        // conditions.needFulfilled = mandateCount - 1; // must have applied for member role.
+        // conditions.needFulfilled = mandateCount - 1; // must have applied for Participant role.
         // constitution.push(
         //     PowersTypes.MandateInitData({
-        //         nameDescription: "Claim Member Role: Following a successful initial claim, members can get member role assigned to their account.",
+        //         nameDescription: "Claim Participant Role: Following a successful initial claim, Participants can get Participant role assigned to their account.",
         //         targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "Github_AssignRoleWithSig"),
         //         config: abi.encode(), // empty config
         //         conditions: conditions
@@ -376,28 +376,28 @@ contract DigitalDAO is DeploySetup {
         // );
         // delete conditions;
 
-        // REVOKE MEMBERSHIP //
+        // REVOKE ParticipantSHIP //
         mandateIds = new uint16[](2);
         mandateIds[0] = mandateCount + 1;
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Revoke Membership: This flow allows members to veto and executives to revoke membership.",
+            nameDescription: "Revoke Participantship: This flow allows Participants to veto and executives to revoke Participantship.",
             mandateIds: mandateIds
         }));
 
         inputParams = new string[](1);
-        inputParams[0] = "address MemberAddress";
+        inputParams[0] = "address ParticipantAddress";
 
-        // Members: veto Revoke Membership
+        // Participants: veto Revoke Participantship
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
         conditions.succeedAt = 51; // = 51% majority
         conditions.quorum = 77; // = Note: high threshold.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Revoke Membership: Members can veto revoking membership from other members.",
+                nameDescription: "Veto Revoke Participantship: Participants can veto revoking Participantship from other Participants.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(inputParams),
                 conditions: conditions
@@ -405,7 +405,7 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Executives: Revoke Membership
+        // Executives: Revoke Participantship
         mandateCount++;
         conditions.allowedRole = 2; // = Executives
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
@@ -415,12 +415,12 @@ contract DigitalDAO is DeploySetup {
         conditions.needNotFulfilled = mandateCount - 1; // need the veto to have NOT been fulfilled.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Revoke Membership: Executives can revoke membership from members.",
+                nameDescription: "Revoke Participantship: Executives can revoke Participantship from Participants.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Advanced"),
                 config: abi.encode(
                     address(powers), 
                     IPowers.revokeRole.selector, // function selector to call
-                    abi.encode(1), // params before (role id 1 = Members) // the static params
+                    abi.encode(1), // params before (role id 1 = Participants) // the static params
                     inputParams, // the dynamic params (the input params of the parent mandate)
                     abi.encode() // no args after
                 ),
@@ -438,7 +438,7 @@ contract DigitalDAO is DeploySetup {
         mandateIds[3] = mandateCount + 4;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Elect Repository Admins: This flow includes the creation, voting, tallying, and cleanup of an election for Repository Admins.",
+            nameDescription: "Elect Repository Setup Initiators: This flow includes the creation, voting, tallying, and cleanup of an election for Repository Setup Initiators.",
             mandateIds: mandateIds
         }));
 
@@ -447,17 +447,17 @@ contract DigitalDAO is DeploySetup {
         inputParams[1] = "uint48 StartBlock";
         inputParams[2] = "uint48 EndBlock";
 
-        // Members: create election
+        // Participants: create election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.throttleExecution = minutesToBlocks(120, helperConfig.getBlocksPerHour(block.chainid)); // = once every 2 hours
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Create a Convener election: an election for the convener role can be initiated be any member.",
+                nameDescription: "Create a Convener election: an election for the convener role can be initiated be any Participant.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    ElectionList.createElection.selector, // selector
+                    electionRegistry, // election list contract
+                    ElectionRegistry.createElection.selector, // selector
                     inputParams
                 ),
                 conditions: conditions
@@ -465,35 +465,35 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: Open Vote for election
+        // Participants: Open Vote for election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.needFulfilled = mandateCount - 1; // = Create election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Open voting for Convener election: Members can open the vote for a convener election. This will create a dedicated vote mandate.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_CreateVoteMandate"),
+                nameDescription: "Open voting for Convener election: Participants can open the vote for a convener election. This will create a dedicated vote mandate.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_CreateVoteMandate"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Vote"), // the vote mandate address
+                    electionRegistry, // election list contract
+                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Vote"), // the vote mandate address
                     1, // the max number of votes a voter can cast
-                    1 // the role Id allowed to vote (Members)
+                    1 // the role Id allowed to vote (Participants)
                 ),
                 conditions: conditions
             })
         );
         delete conditions;
 
-        // Members: Tally election
+        // Participants: Tally election
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.needFulfilled = mandateCount - 1; // = Open Vote election
         constitution.push(
             PowersTypes.MandateInitData({
                 nameDescription: "Tally Convener elections: After a convener election has finished, assign the Convener role to the winners.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Tally"),
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Tally"),
                 config: abi.encode(
-                    electionList, // election list contract
+                    electionRegistry, // election list contract
                     2, // RoleId for Repository admins
                     3 // Max role holders
                 ),
@@ -502,7 +502,7 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: clean up election
+        // Participants: clean up election
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.needFulfilled = mandateCount - 1; // = Tally election
@@ -532,7 +532,7 @@ contract DigitalDAO is DeploySetup {
         mandateIds[4] = mandateCount + 5;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Vote of No Confidence: This flow allows members to call a vote of no confidence to revoke Convener statuses and hold a new election.",
+            nameDescription: "Vote of No Confidence: This flow allows Participants to call a vote of no confidence to revoke Convener statuses and hold a new election.",
             mandateIds: mandateIds
         }));
 
@@ -542,7 +542,7 @@ contract DigitalDAO is DeploySetup {
         inputParams[1] = "uint48 StartBlock";
         inputParams[2] = "uint48 EndBlock";
 
-        // Members: Vote of No Confidence 
+        // Participants: Vote of No Confidence 
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid)); // = 5 minutes / days
@@ -561,17 +561,17 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: create election
+        // Participants: create election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members (should be Convener according to MD, but code says Members)
+        conditions.allowedRole = 1; // = Participants (should be Convener according to MD, but code says Participants)
         conditions.needFulfilled = mandateCount - 1; // = previous Vote of No Confidence mandate. Note: NO throttle on this one.
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Create a Convener election: an election for the convener role can be initiated be any member.",
+                nameDescription: "Create a Convener election: an election for the convener role can be initiated be any Participant.",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "BespokeAction_Simple"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    ElectionList.createElection.selector, // selector
+                    electionRegistry, // election list contract
+                    ElectionRegistry.createElection.selector, // selector
                     inputParams
                 ),
                 conditions: conditions
@@ -579,35 +579,35 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: Open Vote for election
+        // Participants: Open Vote for election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members
+        conditions.allowedRole = 1; // = Participants
         conditions.needFulfilled = mandateCount - 1; // = Create election
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Open voting for Convener election: Members can open the vote for a convener election. This will create a dedicated vote mandate.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_CreateVoteMandate"),
+                nameDescription: "Open voting for Convener election: Participants can open the vote for a convener election. This will create a dedicated vote mandate.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_CreateVoteMandate"),
                 config: abi.encode(
-                    electionList, // election list contract
-                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Vote"), // the vote mandate address
+                    electionRegistry, // election list contract
+                    registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Vote"), // the vote mandate address
                     1, // the max number of votes a voter can cast
-                    1 // the role Id allowed to vote (Members)
+                    1 // the role Id allowed to vote (Participants)
                 ),
                 conditions: conditions
             })
         );
         delete conditions;
 
-        // Members: Tally election
+        // Participants: Tally election
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.needFulfilled = mandateCount - 1; // = Open Vote election
         constitution.push(
             PowersTypes.MandateInitData({
                 nameDescription: "Tally Convener elections: After a convener election has finished, assign the Convener role to the winners.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Tally"),
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Tally"),
                 config: abi.encode(
-                    electionList,
+                    electionRegistry,
                     2, // RoleId for Repository admins
                     5 // Max role holders
                 ),
@@ -616,7 +616,7 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members: clean up election
+        // Participants: clean up election
         mandateCount++;
         conditions.allowedRole = 1;
         conditions.needFulfilled = mandateCount - 1; // = Tally Convener election
@@ -642,19 +642,19 @@ contract DigitalDAO is DeploySetup {
         mandateIds[1] = mandateCount + 2;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Nominate for Election: This flow allows members to nominate themselves or revoke their nomination for an election.",
+            nameDescription: "Nominate for Election: This flow allows Participants to nominate themselves or revoke their nomination for an election.",
             mandateIds: mandateIds
         }));
 
-        // Members: Nominate for Executive election
+        // Participants: Nominate for Executive election
         mandateCount++;
-        conditions.allowedRole = 1; // = Members (should be Repository admins according to MD, but code says Members)
+        conditions.allowedRole = 1; // = Participants (should be Repository admins according to MD, but code says Participants)
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Nominate for election: any member can nominate for an election.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Nominate"),
+                nameDescription: "Nominate for election: any Participant can nominate for an election.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Nominate"),
                 config: abi.encode(
-                    electionList, // election list contract
+                    electionRegistry, // election list contract
                     true // nominate as candidate
                 ),
                 conditions: conditions
@@ -662,15 +662,15 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // Members revoke nomination for Executive election.
+        // Participants revoke nomination for Executive election.
         mandateCount++;
-        conditions.allowedRole = 1; // = Members (should be Repository admins according to MD, but code says Members) 
+        conditions.allowedRole = 1; // = Participants (should be Repository admins according to MD, but code says Participants) 
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Revoke nomination for election: any member can revoke their nomination for an election.",
-                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionList_Nominate"),
+                nameDescription: "Revoke nomination for election: any Participant can revoke their nomination for an election.",
+                targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "ElectionRegistry_Nominate"),
                 config: abi.encode(
-                    electionList, // election list contract
+                    electionRegistry, // election list contract
                     false // revoke nomination
                 ),
                 conditions: conditions
@@ -690,7 +690,7 @@ contract DigitalDAO is DeploySetup {
         mandateIds[2] = mandateCount + 3;
 
         flows.push(PowersTypes.Flow({
-            nameDescription: "Adopt Mandates: This flow allows for the adoption of new mandates, initiated by Members, adopted by Repository admins, and subject to veto by the Primary DAO.",
+            nameDescription: "Adopt Mandates: This flow allows for the adoption of new mandates, initiated by Participants, adopted by Repository admins, and subject to veto by the Primary Layer.",
             mandateIds: mandateIds
         }));
 
@@ -698,15 +698,15 @@ contract DigitalDAO is DeploySetup {
         adoptMandatesParams[0] = "address[] mandates";
         adoptMandatesParams[1] = "uint256[] roleIds";
 
-        // Members: initiate Adopting Mandates
+        // Participants: initiate Adopting Mandates
         mandateCount++;
-        conditions.allowedRole = 1; // Members
+        conditions.allowedRole = 1; // Participants
         conditions.votingPeriod = minutesToBlocks(5, helperConfig.getBlocksPerHour(block.chainid));
         conditions.succeedAt = 66;
         conditions.quorum = 77;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Initiate Adopting Mandates: Members can initiate adopting new mandates",
+                nameDescription: "Initiate Adopting Mandates: Participants can initiate adopting new mandates",
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(adoptMandatesParams),
                 conditions: conditions
@@ -714,13 +714,13 @@ contract DigitalDAO is DeploySetup {
         );
         delete conditions;
 
-        // PrimaryDAO: Veto Adopting Mandates
+        // PrimaryLayer: Veto Adopting Mandates
         mandateCount++;
-        conditions.allowedRole = 6; // PrimaryDAO
+        conditions.allowedRole = 6; // PrimaryLayer
         conditions.needFulfilled = mandateCount - 1;
         constitution.push(
             PowersTypes.MandateInitData({
-                nameDescription: "Veto Adopting Mandates: PrimaryDAO can veto proposals to adopt new mandates", 
+                nameDescription: "Veto Adopting Mandates: PrimaryLayer can veto proposals to adopt new mandates", 
                 targetMandate: registry.getMandateAddress(MAJOR, MINOR, PATCH, IS_STRICT, "StatementOfIntent"),
                 config: abi.encode(adoptMandatesParams),
                 conditions: conditions

@@ -74,8 +74,8 @@ pragma solidity ^0.8.26;
 //         // New fields added during refactoring
 //         address user;
 //         address recipient;
-//         address fakeIdeasDao;
-//         address mockPhysicalDAO;
+//         address fakeIdeasLayer;
+//         address mockPhysicalLayer;
 //         address convener;
 //         address member;
 
@@ -128,7 +128,7 @@ pragma solidity ^0.8.26;
 
 //     Deploy deployScript;
 //     Configurations helperConfig;
-//     Powers primaryDAO;
+//     Powers PrimaryLayer;
 //     Powers digitalSubDAO; 
 
 //     address treasury;
@@ -147,21 +147,21 @@ pragma solidity ^0.8.26;
 //         deployScript.run();
 
 //         // Get the deployed contracts
-//         primaryDAO = deployScript.getPrimaryDAO();   
+//         PrimaryLayer = deployScript.getPrimaryLayer();   
 
 //         // Execute "Initial Setup"
 //         vm.prank(cedars);
-//         primaryDAO.request(1, "", 0, "");
+//         PrimaryLayer.request(1, "", 0, "");
 
 //         // Identify Mandate IDs
 //         console.log("Executing Initial Setup Digital");
 //         digitalSubDAO = deployScript.getDigitalSubDAO();
 //         digitalSubDAO.request(1, "", 0, "");
 
-//         mem.admin = primaryDAO.getRoleHolderAtIndex(1, 0);
-//         console.log("Admin address: %s", mem.admin);
+//         mem.admin = PrimaryLayer.getRoleHolderAtIndex(1, 0);
+//         console.log("Setup Initiator address: %s", mem.admin);
 
-//         treasury = primaryDAO.getTreasury();
+//         treasury = PrimaryLayer.getTreasury();
 //         console.log("Treasury address: %s", treasury);
 
 //         mem.digitalSubDAOAddr = address(digitalSubDAO);
@@ -171,61 +171,61 @@ pragma solidity ^0.8.26;
 //         /////////////////////////////////////////////////////////////////// 
 //         // find mandate IDs using findMandateIdInOrg function if needed  //
 //         ///////////////////////////////////////////////////////////////////
-//         mem.initiateIdeasMandateId = findMandateIdInOrg("Initiate Ideas sub-DAO: Initiate creation of Ideas sub-DAO", primaryDAO);
-//         mem.createIdeasMandateId = findMandateIdInOrg("Create Ideas sub-DAO: Execute Ideas sub-DAO creation", primaryDAO);
-//         mem.assignRoleMandateId = findMandateIdInOrg("Assign role Id to DAO: Assign role id 4 (Ideas sub-DAO) to the new DAO", primaryDAO);
-//         mem.revokeIdeasMandateId = findMandateIdInOrg("Revoke role Id: Revoke role id 4 (Ideas sub-DAO) from the DAO", primaryDAO);
+//         mem.initiateIdeasMandateId = findMandateIdInOrg("Initiate Ideas Layer: Initiate creation of Ideas Layer", PrimaryLayer);
+//         mem.createIdeasMandateId = findMandateIdInOrg("Create Ideas Layer: Execute Ideas Layer creation", PrimaryLayer);
+//         mem.assignRoleMandateId = findMandateIdInOrg("Assign role Id to DAO: Assign role id 4 (Ideas Layer) to the new DAO", PrimaryLayer);
+//         mem.revokeIdeasMandateId = findMandateIdInOrg("Revoke role Id: Revoke role id 4 (Ideas Layer) from the DAO", PrimaryLayer);
 
-//         mem.initiatePhysicalId = findMandateIdInOrg("Initiate Physical sub-DAO: Initiate creation of Physical sub-DAO", primaryDAO);
-//         // mem.deployMeritBadgeId = findMandateIdInOrg("Deploy Merit Badge Contract: Deploy a Soulbound1155 contract to be used as merit badges for the Physical sub-DAO", primaryDAO);
-//         // mem.addDependencyId = findMandateIdInOrg("Add dependency: Add the deployed Soulbound1155 as a dependency to the create Physical sub-DAO mandate", primaryDAO);
+//         mem.initiatePhysicalId = findMandateIdInOrg("Initiate Physical Layer: Initiate creation of Physical Layer", PrimaryLayer);
+//         // mem.deployMeritBadgeId = findMandateIdInOrg("Deploy Merit Badge Contract: Deploy a Soulbound1155 contract to be used as merit badges for the Physical Layer", PrimaryLayer);
+//         // mem.addDependencyId = findMandateIdInOrg("Add dependency: Add the deployed Soulbound1155 as a dependency to the create Physical Layer mandate", PrimaryLayer);
         
-//         mem.createPhysicalId = findMandateIdInOrg("Create Physical sub-DAO: Execute Physical sub-DAO creation", primaryDAO);
-//         mem.assignRoleId = findMandateIdInOrg("Assign role Id: Assign role Id 3 to Physical sub-DAO", primaryDAO);
+//         mem.createPhysicalId = findMandateIdInOrg("Create Physical Layer: Execute Physical Layer creation", PrimaryLayer);
+//         mem.assignRoleId = findMandateIdInOrg("Assign role Id: Assign role Id 3 to Physical Layer", PrimaryLayer);
         
-//         mem.assignDelegateId = findMandateIdInOrg("Assign Delegate status: Assign delegate status at Safe treasury to the Physical sub-DAO", primaryDAO);
+//         mem.assignDelegateId = findMandateIdInOrg("Assign Delegate status: Assign delegate status at Safe treasury to the Physical Layer", PrimaryLayer);
 //         mem.assignAllowanceId = mem.assignDelegateId;
 
-//         mem.revokeRoleId = findMandateIdInOrg("Revoke Role Id: Revoke role Id 3 from Physical sub-DAO", primaryDAO);
-//         mem.revokeAllowanceId = findMandateIdInOrg("Revoke Delegate status: Revoke delegate status Physical sub-DAO at the Safe treasury", primaryDAO);
+//         mem.revokeRoleId = findMandateIdInOrg("Revoke Role Id: Revoke role Id 3 from Physical Layer", PrimaryLayer);
+//         mem.revokeAllowanceId = findMandateIdInOrg("Revoke Delegate status: Revoke delegate status Physical Layer at the Safe treasury", PrimaryLayer);
         
-//         mem.requestPhysicalAllowanceId = findMandateIdInOrg("Request additional allowance: Any Physical sub-DAO can request an allowance from the Safe Treasury.", primaryDAO);
-//         mem.grantPhysicalAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for a Physical sub-DAO.", primaryDAO);
+//         mem.requestPhysicalAllowanceId = findMandateIdInOrg("Request additional allowance: Any Physical Layer can request an allowance from the Safe Treasury.", PrimaryLayer);
+//         mem.grantPhysicalAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for a Physical Layer.", PrimaryLayer);
         
-//         mem.requestDigitalAllowanceId = findMandateIdInOrg("Request additional allowance: The Digital sub-DAO can request an allowance from the Safe Treasury.", primaryDAO);
-//         mem.grantDigitalAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for the Digital sub-DAO.", primaryDAO);
+//         mem.requestDigitalAllowanceId = findMandateIdInOrg("Request additional allowance: The Digital Layer can request an allowance from the Safe Treasury.", PrimaryLayer);
+//         mem.grantDigitalAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for the Digital Layer.", PrimaryLayer);
         
-//         mem.initiateReformId = findMandateIdInOrg("Initiate mandate adoption: Any executive can propose adopting new mandates into the organization.", primaryDAO);
-//         mem.checkpoint1Id = findMandateIdInOrg("Reform Checkpoint 1: Executives confirm Members did not veto.", primaryDAO);
-//         mem.checkpoint2Id = findMandateIdInOrg("Reform Checkpoint 2: Executives confirm Digital sub-DAO did not veto.", primaryDAO);
-//         mem.checkpoint3Id = findMandateIdInOrg("Reform Checkpoint 3: Executives confirm Ideas sub-DAO did not veto.", primaryDAO);
-//         mem.adoptMandateId = findMandateIdInOrg("Adopt new Mandates: Executives can adopt new mandates into the organization", primaryDAO);
+//         mem.initiateReformId = findMandateIdInOrg("Initiate mandate adoption: Any executive can propose adopting new mandates into the organization.", PrimaryLayer);
+//         mem.checkpoint1Id = findMandateIdInOrg("Reform Checkpoint 1: Executives confirm Members did not veto.", PrimaryLayer);
+//         mem.checkpoint2Id = findMandateIdInOrg("Reform Checkpoint 2: Executives confirm Digital Layer did not veto.", PrimaryLayer);
+//         mem.checkpoint3Id = findMandateIdInOrg("Reform Checkpoint 3: Executives confirm Ideas Layer did not veto.", PrimaryLayer);
+//         mem.adoptMandateId = findMandateIdInOrg("Adopt new Mandates: Executives can adopt new mandates into the organization", PrimaryLayer);
 //     }
 
 //     function test_InitialSetup() public {
 //         // 4. Verify Role Labels
-//         assertEq(primaryDAO.getRoleLabel(1), "Members", "Role 1 should be Members");
-//         assertEq(primaryDAO.getRoleLabel(2), "Executives", "Role 2 should be Executives");
-//         assertEq(primaryDAO.getRoleLabel(3), "Physical sub-DAOs", "Role 3 should be Physical sub-DAOs");
-//         assertEq(primaryDAO.getRoleLabel(4), "Ideas sub-DAOs", "Role 4 should be Ideas sub-DAOs");
-//         assertEq(primaryDAO.getRoleLabel(5), "Digital sub-DAOs", "Role 5 should be Digital sub-DAOs");
+//         assertEq(PrimaryLayer.getRoleLabel(1), "Members", "Role 1 should be Members");
+//         assertEq(PrimaryLayer.getRoleLabel(2), "Executives", "Role 2 should be Executives");
+//         assertEq(PrimaryLayer.getRoleLabel(3), "Physical Layers", "Role 3 should be Physical Layers");
+//         assertEq(PrimaryLayer.getRoleLabel(4), "Ideas Layers", "Role 4 should be Ideas Layers");
+//         assertEq(PrimaryLayer.getRoleLabel(5), "Digital Layers", "Role 5 should be Digital Layers");
 
 //         // 6. Verify Safe Module
 //         mem.isEnabled = Safe(payable(treasury)).isModuleEnabled(helperConfig.getSafeAllowanceModule(block.chainid));
 //         assertTrue(mem.isEnabled, "Allowance Module should be enabled on Safe");
 
 //         // 7. Verify Mandate 1 is Revoked
-//         (,, mem.isActive) = primaryDAO.getAdoptedMandate(1);
+//         (,, mem.isActive) = PrimaryLayer.getAdoptedMandate(1);
 //         assertFalse(mem.isActive, "Mandate 1 should be revoked");
 
-//         // 9. Verify Digital sub-DAO is Delegate
+//         // 9. Verify Digital Layer is Delegate
 //         mem.delegateIndex = uint48(uint160(address(digitalSubDAO)));
 
 //         (mem.delegateAddr,,) = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).delegates(treasury, mem.delegateIndex);
-//         assertEq(mem.delegateAddr, address(digitalSubDAO), "Digital sub-DAO should be a delegate on Allowance Module");
+//         assertEq(mem.delegateAddr, address(digitalSubDAO), "Digital Layer should be a delegate on Allowance Module");
 //     }
 
-//     function test_adoptNewMandatesPrimaryDAO() public {
+//     function test_adoptNewMandatesPrimaryLayer() public {
         
 //     }
 
@@ -234,78 +234,78 @@ pragma solidity ^0.8.26;
 
 //         // --- Verify Creation ---
 //         // Note: _deployIdeasSubDAO already decodes and stores address in mem.ideasSubDAOAddress
-//         mem.roleSince = primaryDAO.hasRoleSince(mem.ideasSubDAOAddress, 4);
-//         assertTrue(mem.roleSince > 0, "Ideas sub-DAO should have Role 4");
+//         mem.roleSince = PrimaryLayer.hasRoleSince(mem.ideasSubDAOAddress, 4);
+//         assertTrue(mem.roleSince > 0, "Ideas Layer should have Role 4");
 
-//         // --- Step 4: Revoke Ideas sub-DAO (Executives) ---
+//         // --- Step 4: Revoke Ideas Layer (Executives) ---
 //         vm.startPrank(mem.admin);
-//         console.log("Revoking Ideas sub-DAO...");
+//         console.log("Revoking Ideas Layer...");
 
 //         mem.revokeParams = abi.encode(mem.ideasSubDAOAddress);
 //         mem.nonce++;
 
 //         // Propose Revoke
-//         mem.actionId = primaryDAO.propose(mem.revokeIdeasMandateId, mem.revokeParams, mem.nonce, "");
+//         mem.actionId = PrimaryLayer.propose(mem.revokeIdeasMandateId, mem.revokeParams, mem.nonce, "");
 
 //         // Vote
-//         primaryDAO.castVote(mem.actionId, 1);
+//         PrimaryLayer.castVote(mem.actionId, 1);
 
 //         // Wait voting period + timelock
-//         mem.votingPeriod = primaryDAO.getConditions(mem.revokeIdeasMandateId).votingPeriod;
-//         mem.timelock = primaryDAO.getConditions(mem.revokeIdeasMandateId).timelock;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.revokeIdeasMandateId).votingPeriod;
+//         mem.timelock = PrimaryLayer.getConditions(mem.revokeIdeasMandateId).timelock;
 //         vm.roll(block.number + mem.votingPeriod + mem.timelock + 1);
 
 //         // Execute
-//         primaryDAO.request(mem.revokeIdeasMandateId, mem.revokeParams, mem.nonce, "");
+//         PrimaryLayer.request(mem.revokeIdeasMandateId, mem.revokeParams, mem.nonce, "");
 //         vm.stopPrank();
 
 //         // --- Verify Revocation ---
-//         mem.roleSince = primaryDAO.hasRoleSince(mem.ideasSubDAOAddress, 4);
-//         assertEq(mem.roleSince, 0, "Ideas sub-DAO should NOT have Role 4 anymore");
+//         mem.roleSince = PrimaryLayer.hasRoleSince(mem.ideasSubDAOAddress, 4);
+//         assertEq(mem.roleSince, 0, "Ideas Layer should NOT have Role 4 anymore");
 //     }
 
 //     function test_CreateAndRevokePhysicalSubDAO() public {
 //         _deployIdeasSubDAO();
 //         _deployPhysicalSubDAO();
 
-//         // Verify Role 3 (Physical sub-DAOs)
-//         assertTrue(primaryDAO.hasRoleSince(mem.physicalSubDAOAddress, 3) > 0, "Role 3 missing");
+//         // Verify Role 3 (Physical Layers)
+//         assertTrue(PrimaryLayer.hasRoleSince(mem.physicalSubDAOAddress, 3) > 0, "Role 3 missing");
 
 //         // Verify Status (Delegate)
 //         // Note: _deployPhysicalSubDAO assigns delegate status
 //         mem.delegateIndex = uint48(uint160(address(mem.physicalSubDAOAddress)));
 //         (mem.delegateAddr,,) = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).delegates(treasury, mem.delegateIndex);
 //         assertEq(
-//             mem.delegateAddr, mem.physicalSubDAOAddress, "Digital sub-DAO should be a delegate on Allowance Module"
+//             mem.delegateAddr, mem.physicalSubDAOAddress, "Digital Layer should be a delegate on Allowance Module"
 //         );
 
-//         // --- Step 5: Revoke Physical sub-DAO ---
+//         // --- Step 5: Revoke Physical Layer ---
 //         vm.startPrank(cedars); // _deployPhysicalSubDAO ends pranking cedars, but better be safe
-//         console.log("Revoking Physical sub-DAO...");
+//         console.log("Revoking Physical Layer...");
 //         mem.revokeParams = abi.encode(mem.physicalSubDAOAddress, true); // address, bool
 //         mem.nonce++;
 
 //         // Revoke Role
 //         console.log("Revoking Role...");
-//         mem.actionId = primaryDAO.propose(mem.revokeRoleId, mem.revokeParams, mem.nonce, "");
-//         primaryDAO.castVote(mem.actionId, 1);
+//         mem.actionId = PrimaryLayer.propose(mem.revokeRoleId, mem.revokeParams, mem.nonce, "");
+//         PrimaryLayer.castVote(mem.actionId, 1);
 //         vm.roll(
-//             block.number + primaryDAO.getConditions(mem.revokeRoleId).votingPeriod
-//                 + primaryDAO.getConditions(mem.revokeRoleId).timelock + 1
+//             block.number + PrimaryLayer.getConditions(mem.revokeRoleId).votingPeriod
+//                 + PrimaryLayer.getConditions(mem.revokeRoleId).timelock + 1
 //         );
-//         primaryDAO.request(mem.revokeRoleId, mem.revokeParams, mem.nonce, "");
+//         PrimaryLayer.request(mem.revokeRoleId, mem.revokeParams, mem.nonce, "");
 
 //         // Verify Role Revoked
-//         assertEq(primaryDAO.hasRoleSince(mem.physicalSubDAOAddress, 3), 0, "Role 3 not revoked");
+//         assertEq(PrimaryLayer.hasRoleSince(mem.physicalSubDAOAddress, 3), 0, "Role 3 not revoked");
 
 //         // Revoke Allowance
 //         console.log("Revoking Allowance...");
-//         primaryDAO.request(mem.revokeAllowanceId, mem.revokeParams, mem.nonce, "Revoke Allowance");
+//         PrimaryLayer.request(mem.revokeAllowanceId, mem.revokeParams, mem.nonce, "Revoke Allowance");
 
 //         // Verify Allowance Revoked
 //         mem.delegateIndex = uint48(uint160(address(mem.physicalSubDAOAddress)));
 //         (mem.delegateAddr,,) = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).delegates(treasury, mem.delegateIndex);
-//         assertEq(mem.delegateAddr, address(0), "Digital sub-DAO should NOT be a delegate on Allowance Module anymore");
+//         assertEq(mem.delegateAddr, address(0), "Digital Layer should NOT be a delegate on Allowance Module anymore");
 
 //         vm.stopPrank();
 //     }
@@ -314,10 +314,10 @@ pragma solidity ^0.8.26;
 //         _deployIdeasSubDAO();
 //         _deployPhysicalSubDAO();
 
-//         // Verify Role 3 (Physical sub-DAOs)
-//         assertTrue(primaryDAO.hasRoleSince(mem.physicalSubDAOAddress, 3) > 0, "Role 3 missing");
+//         // Verify Role 3 (Physical Layers)
+//         assertTrue(PrimaryLayer.hasRoleSince(mem.physicalSubDAOAddress, 3) > 0, "Role 3 missing");
 
-//         // --- TEST 1: Physical sub-DAO Allowance Flow ---
+//         // --- TEST 1: Physical Layer Allowance Flow ---
 
 //         // Params for allowance: Sub-DAO, Token, Amount, ResetTime, ResetBase
 //         mem.token = address(0); // ETH
@@ -328,71 +328,71 @@ pragma solidity ^0.8.26;
 //         mem.allowanceParams = abi.encode(mem.physicalSubDAOAddress, mem.token, mem.amount, mem.resetTime, mem.resetBase);
 //         mem.nonce++;
 
-//         // 1. Physical sub-DAO requests allowance
+//         // 1. Physical Layer requests allowance
 //         vm.startPrank(mem.physicalSubDAOAddress);
-//         console.log("Physical sub-DAO requesting allowance...");
-//         primaryDAO.request(mem.requestPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Physical sub-DAO requesting allowance");
+//         console.log("Physical Layer requesting allowance...");
+//         PrimaryLayer.request(mem.requestPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Physical Layer requesting allowance");
 //         vm.stopPrank();
 
-//         // 2. Veto by Physical sub-DAOs check (we will just wait out the timelock/voting period of the grant without vetoing)
+//         // 2. Veto by Physical Layers check (we will just wait out the timelock/voting period of the grant without vetoing)
 //         // Note: The grant mandate requires the veto NOT to be fulfilled.
 
 //         // 3. Executives grant allowance
 //         // Role 2 (Executives) is held by cedars.
 //         vm.startPrank(cedars);
-//         console.log("Executives granting allowance to Physical sub-DAO...");
+//         console.log("Executives granting allowance to Physical Layer...");
 
-//         mem.actionId = primaryDAO.propose(mem.grantPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Physical sub-DAO Allowance - Propose");
-//         primaryDAO.castVote(mem.actionId, 1);
+//         mem.actionId = PrimaryLayer.propose(mem.grantPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Physical Layer Allowance - Propose");
+//         PrimaryLayer.castVote(mem.actionId, 1);
 
 //         // Wait voting + timelock
-//         mem.votingPeriod = primaryDAO.getConditions(mem.grantPhysicalAllowanceId).votingPeriod;
-//         mem.timelock = primaryDAO.getConditions(mem.grantPhysicalAllowanceId).timelock;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.grantPhysicalAllowanceId).votingPeriod;
+//         mem.timelock = PrimaryLayer.getConditions(mem.grantPhysicalAllowanceId).timelock;
 //         vm.roll(block.number + mem.votingPeriod + mem.timelock + 1);
 
-//         primaryDAO.request(mem.grantPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Physical sub-DAO Allowance - Request");
+//         PrimaryLayer.request(mem.grantPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Physical Layer Allowance - Request");
 //         vm.stopPrank();
 
 //         // Verify Allowance
 //         mem.allowanceInfo = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).getTokenAllowance(treasury, mem.physicalSubDAOAddress, mem.token);
-//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Physical sub-DAO allowance should be set");
+//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Physical Layer allowance should be set");
 
-//         // --- TEST 2: Digital sub-DAO Allowance Flow ---
+//         // --- TEST 2: Digital Layer Allowance Flow ---
 
-//         // Verify Digital sub-DAO has delegate status (Checked in InitialSetup)
+//         // Verify Digital Layer has delegate status (Checked in InitialSetup)
 //         mem.digitalSubDAOAddr = address(digitalSubDAO);
 
 //         // Params for allowance
 //         mem.allowanceParams = abi.encode(mem.digitalSubDAOAddr, mem.token, mem.amount, mem.resetTime, mem.resetBase);
 //         mem.nonce++;
 
-//         // 1. Digital sub-DAO requests allowance
+//         // 1. Digital Layer requests allowance
 //         vm.startPrank(mem.digitalSubDAOAddr);
-//         console.log("Digital sub-DAO requesting allowance...");
-//         primaryDAO.request(mem.requestDigitalAllowanceId, mem.allowanceParams, mem.nonce, "Digital sub-DAO requesting allowance");
+//         console.log("Digital Layer requesting allowance...");
+//         PrimaryLayer.request(mem.requestDigitalAllowanceId, mem.allowanceParams, mem.nonce, "Digital Layer requesting allowance");
 //         vm.stopPrank();
 
 //         // 2. Executives grant allowance
 //         vm.startPrank(cedars); // cedars has role 2
-//         console.log("Executives granting allowance to Digital sub-DAO...");
+//         console.log("Executives granting allowance to Digital Layer...");
 
-//         mem.actionId = primaryDAO.propose(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Digital sub-DAO Allowance - Propose");
-//         primaryDAO.castVote(mem.actionId, 1);
+//         mem.actionId = PrimaryLayer.propose(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Digital Layer Allowance - Propose");
+//         PrimaryLayer.castVote(mem.actionId, 1);
 
-//         mem.votingPeriod = primaryDAO.getConditions(mem.grantDigitalAllowanceId).votingPeriod;
-//         mem.timelock = primaryDAO.getConditions(mem.grantDigitalAllowanceId).timelock;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.grantDigitalAllowanceId).votingPeriod;
+//         mem.timelock = PrimaryLayer.getConditions(mem.grantDigitalAllowanceId).timelock;
 //         vm.roll(block.number + mem.votingPeriod + mem.timelock + 1);
 
-//         primaryDAO.request(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Digital sub-DAO Allowance - Request");
+//         PrimaryLayer.request(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Digital Layer Allowance - Request");
 //         vm.stopPrank();
 
 //         // Verify Allowance
 //         mem.allowanceInfo = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).getTokenAllowance(treasury, mem.digitalSubDAOAddr, mem.token);
-//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Digital sub-DAO allowance should be set");
+//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Digital Layer allowance should be set");
 //     }
 
 //     function test_PaymentOfReceipts_DigitalSubDAO() public {
-//         // --- Grant Allowance to Digital sub-DAO (Primary DAO side) ---
+//         // --- Grant Allowance to Digital Layer (Primary Layer side) ---
 //         // Reusing logic from test_AddAllowances
 //         // Mandate IDs
 
@@ -405,33 +405,33 @@ pragma solidity ^0.8.26;
 //         mem.nonce = 100;
 
 //         // 1. Request Allowance (by Cedars - Role 5)
-//         console2.log("Digital sub-DAO (via Cedars) requesting allowance...");
+//         console2.log("Digital Layer (via Cedars) requesting allowance...");
 //         vm.startPrank(mem.digitalSubDAOAddr);
-//         primaryDAO.request(mem.requestDigitalAllowanceId, mem.allowanceParams, mem.nonce, "");
+//         PrimaryLayer.request(mem.requestDigitalAllowanceId, mem.allowanceParams, mem.nonce, "");
 //         vm.stopPrank();
 
 //         // 2. Grant Allowance (by conveners - Role 2)
-//         console2.log("Executives granting allowance to Digital sub-DAO...");
+//         console2.log("Executives granting allowance to Digital Layer...");
 //         vm.startPrank(mem.admin);
-//         mem.actionId = primaryDAO.propose(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "");
-//         primaryDAO.castVote(mem.actionId, 1);
+//         mem.actionId = PrimaryLayer.propose(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "");
+//         PrimaryLayer.castVote(mem.actionId, 1);
 
-//         uint32 votingPeriod = primaryDAO.getConditions(mem.grantDigitalAllowanceId).votingPeriod;
-//         uint32 timelock = primaryDAO.getConditions(mem.grantDigitalAllowanceId).timelock;
+//         uint32 votingPeriod = PrimaryLayer.getConditions(mem.grantDigitalAllowanceId).votingPeriod;
+//         uint32 timelock = PrimaryLayer.getConditions(mem.grantDigitalAllowanceId).timelock;
 //         vm.roll(block.number + votingPeriod + timelock + 1);
 
-//         primaryDAO.request(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "");
+//         PrimaryLayer.request(mem.grantDigitalAllowanceId, mem.allowanceParams, mem.nonce, "");
 //         vm.stopPrank();
 
 //         // Verify Allowance
 //         mem.allowanceInfo = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).getTokenAllowance(treasury, mem.digitalSubDAOAddr, mem.token);
-//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Digital sub-DAO allowance should be set");
+//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Digital Layer allowance should be set");
 
 //         // Fund Treasury
 //         vm.deal(treasury, 10 ether);
 //         assertEq(treasury.balance, 10 ether, "Treasury should have funds");
 
-//         // --- Digital sub-DAO Payment Flow ---
+//         // --- Digital Layer Payment Flow ---
 //         // Mandates:
 //         // 2: Submit Receipt (Public)
 //         // 3: OK Receipt (Conveners)
@@ -492,7 +492,7 @@ pragma solidity ^0.8.26;
 //         assertEq(uint96(mem.allowanceInfo[1]), mem.paymentAmount, "Allowance spent should match payment");
 //     }
 
-//     function test_AdoptMandate_PrimaryDAO() public {
+//     function test_AdoptMandate_PrimaryLayer() public {
 //         _deployIdeasSubDAO();
 //         _deployPhysicalSubDAO();
 
@@ -511,47 +511,47 @@ pragma solidity ^0.8.26;
 //         // 2. Initiate Reform (Executives)
 //         vm.startPrank(cedars);
 //         console.log("Initiating Reform...");
-//         primaryDAO.request(mem.initiateReformId, mem.params, mem.nonce, "Initiate Reform");
+//         PrimaryLayer.request(mem.initiateReformId, mem.params, mem.nonce, "Initiate Reform");
 
 //         // 3. Reform Checkpoint 1 (Executives) - Needs timelock
 //         // Must propose first because timelock > 0
 //         console.log("Proposing Checkpoint 1...");
-//         mem.actionId = primaryDAO.propose(mem.checkpoint1Id, mem.params, mem.nonce, "Checkpoint 1");
+//         mem.actionId = PrimaryLayer.propose(mem.checkpoint1Id, mem.params, mem.nonce, "Checkpoint 1");
         
 //         // Wait timelock (5 mins)
-//         mem.timelock = primaryDAO.getConditions(mem.checkpoint1Id).timelock;
+//         mem.timelock = PrimaryLayer.getConditions(mem.checkpoint1Id).timelock;
 //         vm.roll(block.number + mem.timelock + 1);
 
 //         console.log("Requesting Checkpoint 1...");
-//         primaryDAO.request(mem.checkpoint1Id, mem.params, mem.nonce, "Checkpoint 1");
+//         PrimaryLayer.request(mem.checkpoint1Id, mem.params, mem.nonce, "Checkpoint 1");
 
 //         // 4. Reform Checkpoint 2 (Executives) - No timelock
 //         console.log("Requesting Checkpoint 2...");
-//         primaryDAO.request(mem.checkpoint2Id, mem.params, mem.nonce, "Checkpoint 2");
+//         PrimaryLayer.request(mem.checkpoint2Id, mem.params, mem.nonce, "Checkpoint 2");
 
 //         // 5. Reform Checkpoint 3 (Executives) - No timelock
 //         console.log("Requesting Checkpoint 3...");
-//         primaryDAO.request(mem.checkpoint3Id, mem.params, mem.nonce, "Checkpoint 3");
+//         PrimaryLayer.request(mem.checkpoint3Id, mem.params, mem.nonce, "Checkpoint 3");
 
 //         // 6. Adopt Mandate (Executives) - Vote + Timelock
 //         console.log("Proposing Adoption...");
-//         mem.actionId = primaryDAO.propose(mem.adoptMandateId, mem.params, mem.nonce, "Adopt Mandate");
+//         mem.actionId = PrimaryLayer.propose(mem.adoptMandateId, mem.params, mem.nonce, "Adopt Mandate");
 
 //         // Vote
-//         primaryDAO.castVote(mem.actionId, 1);
+//         PrimaryLayer.castVote(mem.actionId, 1);
 
 //         // Wait voting period + timelock
-//         mem.votingPeriod = primaryDAO.getConditions(mem.adoptMandateId).votingPeriod;
-//         mem.timelock = primaryDAO.getConditions(mem.adoptMandateId).timelock;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.adoptMandateId).votingPeriod;
+//         mem.timelock = PrimaryLayer.getConditions(mem.adoptMandateId).timelock;
 //         vm.roll(block.number + mem.votingPeriod + mem.timelock + 1);
 
 //         console.log("Requesting Adoption...");
-//         primaryDAO.request(mem.adoptMandateId, mem.params, mem.nonce, "Adopt Mandate");
+//         PrimaryLayer.request(mem.adoptMandateId, mem.params, mem.nonce, "Adopt Mandate");
 //         vm.stopPrank();
 
 //         // 7. Verify Adoption
-//         uint16 nextMandateId = primaryDAO.getMandateCounter() - 1; // getMandateCounter returns next ID
-//         (address mandateAddr, , bool active) = primaryDAO.getAdoptedMandate(nextMandateId);
+//         uint16 nextMandateId = PrimaryLayer.getMandateCounter() - 1; // getMandateCounter returns next ID
+//         (address mandateAddr, , bool active) = PrimaryLayer.getAdoptedMandate(nextMandateId);
         
 //         assertEq(mandateAddr, address(newMandate), "New mandate should be adopted");
 //         assertTrue(active, "New mandate should be active");
@@ -582,8 +582,8 @@ pragma solidity ^0.8.26;
 
 //         // --- Step 2: Mint POAPs at Physical DAO ---
 //         // Note: Cedars is assigned Role 2 (Convener) in createPhysicalConstitution
-//         // Mandate: "Mint POAP: Any Convener can mint a POAP." calling Primary DAO
-//         // The Primary DAO mandate (GovernedToken_MintEncodedToken) expects (to, artist, uri)
+//         // Mandate: "Mint POAP: Any Convener can mint a POAP." calling Primary Layer
+//         // The Primary Layer mandate (GovernedToken_MintEncodedToken) expects (to, artist, uri)
 //         // But the Physical DAO ExternalAction_Simple has inputParams="address To".
 //         // However, we pass the full encoded data that matches the target mandate signature.
         
@@ -614,12 +614,12 @@ pragma solidity ^0.8.26;
 //         mem.params = abi.encode(tokenIds);
         
 //         // Member applies at Ideas DAO
-//         uint16 applyPrimaryId = findMandateIdInOrg("Apply for Membership of Primary DAO: Members can apply for membership of the Primary DAO by submitting a request with their POAPs.", Powers(payable(mem.ideasSubDAOAddress)));
+//         uint16 applyPrimaryId = findMandateIdInOrg("Apply for Membership of Primary Layer: Members can apply for membership of the Primary Layer by submitting a request with their POAPs.", Powers(payable(mem.ideasSubDAOAddress)));
 //         vm.prank(mem.member);
 //         Powers(payable(mem.ideasSubDAOAddress)).request(applyPrimaryId, mem.params, 1, "Apply for Ideas Sub-DAO Membership");
         
-//         // Moderator (Cedars) approves and sends request to Primary DAO
-//         uint16 requestPrimaryId = findMandateIdInOrg("Request Membership of Primary DAO: Moderators can ok requests for membership of the Primary DAO and send them to the Primary DAO for assessment.", Powers(payable(mem.ideasSubDAOAddress)));
+//         // Moderator (Cedars) approves and sends request to Primary Layer
+//         uint16 requestPrimaryId = findMandateIdInOrg("Request Membership of Primary Layer: Moderators can ok requests for membership of the Primary Layer and send them to the Primary Layer for assessment.", Powers(payable(mem.ideasSubDAOAddress)));
 
 //         // need to vote on the application
 //         vm.startPrank(cedars);
@@ -635,35 +635,35 @@ pragma solidity ^0.8.26;
 
 //         vm.stopPrank();
 
-//         // This triggers "Request Membership Step 1" in Primary DAO.
+//         // This triggers "Request Membership Step 1" in Primary Layer.
 //         // We can verify that Step 1 is fulfilled if we want, but we'll see if Step 2 works.
 
-//         // --- Step 4: Claim Membership at Primary DAO ---
-//         mem.claimStep2Id = findMandateIdInOrg("Request Membership Step 2: 2 POAPS from physical DAO are needed that are not older than 6 months.", primaryDAO);
+//         // --- Step 4: Claim Membership at Primary Layer ---
+//         mem.claimStep2Id = findMandateIdInOrg("Request Membership Step 2: 2 POAPS from physical DAO are needed that are not older than 6 months.", PrimaryLayer);
         
 //         vm.prank(mem.member);
-//         primaryDAO.request(mem.claimStep2Id, mem.params, 1, "Claim Membership Step 2");
+//         PrimaryLayer.request(mem.claimStep2Id, mem.params, 1, "Claim Membership Step 2");
         
-//         // Verify Role 1 in Primary DAO
-//         assertTrue(primaryDAO.hasRoleSince(mem.member, 1) > 0, "Member should have Primary Role 1");
+//         // Verify Role 1 in Primary Layer
+//         assertTrue(PrimaryLayer.hasRoleSince(mem.member, 1) > 0, "Member should have Primary Role 1");
 
-//         // --- Step 5: Revoke Membership Primary DAO ---
+//         // --- Step 5: Revoke Membership Primary Layer ---
 //         // Veto Revoke (Members)
 //         // We skip veto and proceed to proposal by Executive
-//         mem.revokeMembershipId = findMandateIdInOrg("Revoke Membership: Executives can revoke membership from members.", primaryDAO);
+//         mem.revokeMembershipId = findMandateIdInOrg("Revoke Membership: Executives can revoke membership from members.", PrimaryLayer);
 //         bytes memory revokeParams = abi.encode(mem.member);
         
 //         vm.startPrank(cedars); // Cedars is Executive (Role 2)
-//         mem.actionId = primaryDAO.propose(mem.revokeMembershipId, revokeParams, 1, "Revoke Membership - Proposal");
-//         primaryDAO.castVote(mem.actionId, 1);
+//         mem.actionId = PrimaryLayer.propose(mem.revokeMembershipId, revokeParams, 1, "Revoke Membership - Proposal");
+//         PrimaryLayer.castVote(mem.actionId, 1);
         
-//         vm.roll(block.number + primaryDAO.getConditions(mem.revokeMembershipId).votingPeriod + primaryDAO.getConditions(mem.revokeMembershipId).timelock + 1);
+//         vm.roll(block.number + PrimaryLayer.getConditions(mem.revokeMembershipId).votingPeriod + PrimaryLayer.getConditions(mem.revokeMembershipId).timelock + 1);
         
-//         primaryDAO.request(mem.revokeMembershipId, revokeParams, 1, "Revoke Membership - Request");
+//         PrimaryLayer.request(mem.revokeMembershipId, revokeParams, 1, "Revoke Membership - Request");
 //         vm.stopPrank();
         
 //         // Verify Revocation
-//         assertEq(primaryDAO.hasRoleSince(mem.member, 1), 0, "Member should NOT have Primary Role 1 after revocation");
+//         assertEq(PrimaryLayer.hasRoleSince(mem.member, 1), 0, "Member should NOT have Primary Role 1 after revocation");
 //     }
 
 //     function test_IdeasSubDAO_Election() public {
@@ -671,7 +671,7 @@ pragma solidity ^0.8.26;
 
 //         // --- Setup User (Member) ---
 //         mem.user = address(0x100);
-//         vm.prank(address(mem.ideasSubDAOAddress)); // Admin of Ideas sub-DAO is itself
+//         vm.prank(address(mem.ideasSubDAOAddress)); // Setup Initiator of Ideas Layer is itself
 //         Powers(payable(mem.ideasSubDAOAddress)).assignRole(1, mem.user);
 //         assertTrue(Powers(payable(mem.ideasSubDAOAddress)).hasRoleSince(mem.user, 1) != 0, "User should have Role 1 (Member)");
 
@@ -847,119 +847,119 @@ pragma solidity ^0.8.26;
 //     }
 
 //     function _deployIdeasSubDAO() internal {
-//         // --- Step 1: Initiate Ideas sub-DAO (Members) ---
+//         // --- Step 1: Initiate Ideas Layer (Members) ---
 //         vm.startPrank(mem.admin);
 
-//         mem.params = abi.encode("Ideas sub-DAO", "ipfs://ideas");
+//         mem.params = abi.encode("Ideas Layer", "ipfs://ideas");
 //         mem.nonce++; // Ensure nonce is managed.
 
 //         // Propose
-//         mem.actionId = primaryDAO.propose(mem.initiateIdeasMandateId, mem.params, mem.nonce, "Initiate Ideas sub-DAO");
+//         mem.actionId = PrimaryLayer.propose(mem.initiateIdeasMandateId, mem.params, mem.nonce, "Initiate Ideas Layer");
 //         vm.stopPrank();
 
 //         // Vote (Members)
-//         uint256 amountRole1Holders = primaryDAO.getAmountRoleHolders(1);
+//         uint256 amountRole1Holders = PrimaryLayer.getAmountRoleHolders(1);
 //         for (uint256 i = 0; i < amountRole1Holders; i++) {
-//             address roleHolder = primaryDAO.getRoleHolderAtIndex(1, i);
+//             address roleHolder = PrimaryLayer.getRoleHolderAtIndex(1, i);
 //             vm.prank(roleHolder);
-//             primaryDAO.castVote(mem.actionId, 1); // 1 = For
+//             PrimaryLayer.castVote(mem.actionId, 1); // 1 = For
 //         }
 
 //         // Wait for voting period
-//         mem.votingPeriod = primaryDAO.getConditions(mem.initiateIdeasMandateId).votingPeriod;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.initiateIdeasMandateId).votingPeriod;
 //         vm.roll(block.number + mem.votingPeriod + 1);
 
 //         // Execute (Request)
 //         vm.startPrank(mem.admin);
-//         primaryDAO.request(mem.initiateIdeasMandateId, mem.params, mem.nonce, "Initiate Ideas sub-DAO");
+//         PrimaryLayer.request(mem.initiateIdeasMandateId, mem.params, mem.nonce, "Initiate Ideas Layer");
 //         vm.stopPrank();
 
-//         // --- Step 2: Create Ideas sub-DAO (Executives) ---
+//         // --- Step 2: Create Ideas Layer (Executives) ---
 //         vm.startPrank(mem.admin);
 
 //         // Propose
-//         mem.actionId = primaryDAO.propose(mem.createIdeasMandateId, mem.params, mem.nonce, "Create Ideas sub-DAO");
+//         mem.actionId = PrimaryLayer.propose(mem.createIdeasMandateId, mem.params, mem.nonce, "Create Ideas Layer");
 
 //         // Vote
-//         primaryDAO.castVote(mem.actionId, 1);
+//         PrimaryLayer.castVote(mem.actionId, 1);
 
 //         // Wait
-//         mem.votingPeriod = primaryDAO.getConditions(mem.createIdeasMandateId).votingPeriod;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.createIdeasMandateId).votingPeriod;
 //         vm.roll(block.number + mem.votingPeriod + 1);
 
 //         // Execute
-//         mem.actionId = primaryDAO.request(mem.createIdeasMandateId, mem.params, mem.nonce, "Create Ideas sub-DAO");
+//         mem.actionId = PrimaryLayer.request(mem.createIdeasMandateId, mem.params, mem.nonce, "Create Ideas Layer");
 //         vm.stopPrank();
 
 //         // --- Step 3: Assign Role Id (Executives) ---
 //         vm.startPrank(mem.admin);
 
 //         // Execute (No quorum, immediate execution)
-//         primaryDAO.request(mem.assignRoleMandateId, mem.params, mem.nonce, "Assign Role 4 to Ideas sub-DAO");
+//         PrimaryLayer.request(mem.assignRoleMandateId, mem.params, mem.nonce, "Assign Role 4 to Ideas Layer");
 //         vm.stopPrank();
 
 //         // --- Store Address ---
-//         mem.returnData = primaryDAO.getActionReturnData(mem.actionId, 0);
+//         mem.returnData = PrimaryLayer.getActionReturnData(mem.actionId, 0);
 //         mem.ideasSubDAOAddress = abi.decode(mem.returnData, (address));
 
 //         vm.prank(mem.admin);
 //         Powers(payable(mem.ideasSubDAOAddress)).request(1, "", 0, ""); // Ping to initialize
 
-//         console.log("Ideas sub-DAO deployed at: %s", mem.ideasSubDAOAddress);
+//         console.log("Ideas Layer deployed at: %s", mem.ideasSubDAOAddress);
 //     }
 
 //     function _deployPhysicalSubDAO() internal {
 //         // Requires mem.ideasSubDAOAddress to be set and have Role 4.
         
-//         mem.params = abi.encode("Physical sub-DAO", "ipfs://physical");
+//         mem.params = abi.encode("Physical Layer", "ipfs://physical");
 //         mem.nonce++; // Increment nonce
         
-//         console.log("Initiating Physical sub-DAO...");
-//         // Propose (By Ideas sub-DAO - Role 4)
+//         console.log("Initiating Physical Layer...");
+//         // Propose (By Ideas Layer - Role 4)
 //         vm.prank(mem.ideasSubDAOAddress);
-//         primaryDAO.request(mem.initiatePhysicalId, mem.params, mem.nonce, "Initiate Physical sub-DAO");
+//         PrimaryLayer.request(mem.initiatePhysicalId, mem.params, mem.nonce, "Initiate Physical Layer");
 
 //         // --- Step 2: Deploy & Register Merit Badge Contract ---
 //         // deploy Merit Badge Contract (Cedars/Exec)
 //         // vm.prank(cedars);
-//         // primaryDAO.request(mem.deployMeritBadgeId, mem.params, mem.nonce, "Deploy Merit Badge Contract");
+//         // PrimaryLayer.request(mem.deployMeritBadgeId, mem.params, mem.nonce, "Deploy Merit Badge Contract");
 
-//         // // Add dependency to Create Physical sub-DAO mandate (Cedars/Exec)
+//         // // Add dependency to Create Physical Layer mandate (Cedars/Exec)
 //         // vm.prank(cedars);
-//         // primaryDAO.request(mem.addDependencyId, mem.params, mem.nonce, "Add dependency: Merit Badge Contract");
+//         // PrimaryLayer.request(mem.addDependencyId, mem.params, mem.nonce, "Add dependency: Merit Badge Contract");
 
-//         // --- Step 3: Create Physical sub-DAO ---
-//         console.log("Creating Physical sub-DAO...");
+//         // --- Step 3: Create Physical Layer ---
+//         console.log("Creating Physical Layer...");
 //         vm.prank(cedars);
-//         mem.actionId = primaryDAO.propose(mem.createPhysicalId, mem.params, mem.nonce, "Create Physical sub-DAO Propose");
+//         mem.actionId = PrimaryLayer.propose(mem.createPhysicalId, mem.params, mem.nonce, "Create Physical Layer Propose");
 
 //         // Vote (Executives - Role 2)
-//         mem.numberOfRole1Holders = primaryDAO.getAmountRoleHolders(2);
+//         mem.numberOfRole1Holders = PrimaryLayer.getAmountRoleHolders(2);
 //         for (uint256 i = 0; i < mem.numberOfRole1Holders; i++) {
-//             address voter = primaryDAO.getRoleHolderAtIndex(2, i);
+//             address voter = PrimaryLayer.getRoleHolderAtIndex(2, i);
 //             vm.prank(voter);
-//             primaryDAO.castVote(mem.actionId, 1);
+//             PrimaryLayer.castVote(mem.actionId, 1);
 //         }
 
-//         vm.roll(block.number + primaryDAO.getConditions(mem.createPhysicalId).votingPeriod + 1);
+//         vm.roll(block.number + PrimaryLayer.getConditions(mem.createPhysicalId).votingPeriod + 1);
 //         vm.prank(cedars);
-//         mem.actionId = primaryDAO.request(mem.createPhysicalId, mem.params, mem.nonce, "Create Physical sub-DAO Request");
+//         mem.actionId = PrimaryLayer.request(mem.createPhysicalId, mem.params, mem.nonce, "Create Physical Layer Request");
 
 //         // Get address
-//         mem.returnData = primaryDAO.getActionReturnData(mem.actionId, 0);
+//         mem.returnData = PrimaryLayer.getActionReturnData(mem.actionId, 0);
 //         mem.physicalSubDAOAddress = abi.decode(mem.returnData, (address));
-//         console.log("Physical sub-DAO created at: %s", mem.physicalSubDAOAddress);
+//         console.log("Physical Layer created at: %s", mem.physicalSubDAOAddress);
 
 //         // --- Step 3: Assign Role ---
 //         console.log("Assigning Role...");
 //         vm.startPrank(cedars);
-//         primaryDAO.request(mem.assignRoleId, mem.params, mem.nonce, "Assign Role 3 to Physical sub-DAO");
+//         PrimaryLayer.request(mem.assignRoleId, mem.params, mem.nonce, "Assign Role 3 to Physical Layer");
 
 //         // --- Step 4: Assign Delegate Status ---
 //         // (Necessary for Allowance Module)
-//         primaryDAO.request(mem.assignDelegateId, mem.params, mem.nonce, "Assign Delegate Status");
+//         PrimaryLayer.request(mem.assignDelegateId, mem.params, mem.nonce, "Assign Delegate Status");
         
-//         // step 5: Ping sub-DAO to initialize (so that it can receive the role assignment and delegate status)
+//         // step 5: Ping layer to initialize (so that it can receive the role assignment and delegate status)
 //         Powers(payable(mem.physicalSubDAOAddress)).request(1, "", 0, ""); // Ping to initialize
         
 //         vm.stopPrank();

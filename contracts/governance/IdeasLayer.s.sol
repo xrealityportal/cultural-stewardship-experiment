@@ -75,7 +75,7 @@ contract IdeasLayer is DeploySetup {
         address electionRegistry,
         address safeTreasury
     ) internal {
-        mandateCount = 0; // resetting mandate count.
+        mandateCount = 5; // resetting mandate count.
 
         //////////////////////////////////////////////////////////////////////
         //                              SETUP                               //

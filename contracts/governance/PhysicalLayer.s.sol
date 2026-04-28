@@ -78,7 +78,7 @@ contract PhysicalLayer is DeploySetup {
         address nominees,
         uint16 mintPoapTokenId
     ) internal {
-        mandateCount = 4; // resetting mandate count. 
+        mandateCount = 3; // resetting mandate count. 
         //////////////////////////////////////////////////////////////////////
         //                              SETUP                               //
         //////////////////////////////////////////////////////////////////////

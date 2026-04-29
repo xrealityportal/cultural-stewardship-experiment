@@ -10,6 +10,12 @@ import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
 import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 
+// NB NOTES - the logic should be the following: 
+// Roles should reflect roles in github repo: 
+// keeping them alligned through social pressure.
+// Rage quit option by forking repo and reassigning repo to Powers.  
+// Participation assigned through github contribs + steward approval. 
+
 contract DigitalLayer is DeploySetup {
     PowersTypes.Conditions conditions;
     PowersTypes.Flow[] flows;

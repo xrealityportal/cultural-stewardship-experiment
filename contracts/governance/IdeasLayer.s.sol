@@ -13,7 +13,7 @@ import { ZKPassportHelper } from "@lib/circuits/src/solidity/src/ZKPassportHelpe
 import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersFactory.sol";
 import { PowersDeployer } from "@lib/powers-monorepo/solidity/src/helpers/PowersDeployer.sol";
 
-contract IdeasLayer is DeploySetup {
+contract IdeasLayer is DeploySetup { 
     PowersTypes.Conditions conditions;
     PowersTypes.Flow[] flows;
 

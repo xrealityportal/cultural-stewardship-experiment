@@ -15,73 +15,77 @@ import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { Soulbound1155 } from "@lib/powers-monorepo/solidity/src/helpers/Soulbound1155.sol";
 import { Governed721 } from "@lib/powers-monorepo/solidity/src/helpers/Governed721.sol";
 import { Nominees } from "@lib/powers-monorepo/solidity/src/helpers/Nominees.sol";
-import { ElectionList } from "@lib/powers-monorepo/solidity/src/helpers/ElectionList.sol";
+import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersFactory.sol"; 
 import { PowersDeployer } from "@lib/powers-monorepo/solidity/src/helpers/PowersDeployer.sol";
 
 import { Helpers } from "./Helpers.s.sol";
-import { PrimaryDAO } from "./PrimaryDAO.s.sol";
-import { DigitalDAO } from "./DigitalDAO.s.sol";
-import { IdeasDAO } from "./IdeasDAO.s.sol";
-import { PhysicalDAO } from "./PhysicalDAO.s.sol";
+import { PrimaryLayer } from "./PrimaryLayer.s.sol";
+import { DigitalLayer } from "./DigitalLayer.s.sol";
+import { IdeasLayer } from "./IdeasLayer.s.sol";
+import { PhysicalLayer } from "./PhysicalLayer.s.sol";
 
 /// @title Cultural Stewards DAO - Deployment Script
 /// Note: all days are turned into minutes for testing purposes. These should be changed before production deployment: ctrl-f minutesToBlocks -> daysToBlocks.
 contract Deploy is Script {
-    PrimaryDAO primaryDAO;
-    DigitalDAO digitalSubDAO;
-    IdeasDAO ideasSubDaoFactory;
-    PhysicalDAO physicalSubDaoFactory;
+    PrimaryLayer primaryLayer;
+    DigitalLayer digitalLayer;
+    IdeasLayer ideasLayerFactory;
+    PhysicalLayer physicalLayerFactory;
     Helpers helpers; 
     
     function run() external { 
         // step 0, setup. 
-        primaryDAO = new PrimaryDAO();
-        digitalSubDAO = new DigitalDAO();
-        ideasSubDaoFactory = new IdeasDAO();
-        physicalSubDaoFactory = new PhysicalDAO();
+        primaryLayer = new PrimaryLayer();
+        digitalLayer = new DigitalLayer();
+        ideasLayerFactory = new IdeasLayer();
+        physicalLayerFactory = new PhysicalLayer();
         helpers = new Helpers();
 
         // deploying the core Powers and Powers factory instances: 
-        primaryDAO.run();
-        digitalSubDAO.run();
-        ideasSubDaoFactory.run();
-        physicalSubDaoFactory.run();
+        primaryLayer.run();
+        digitalLayer.run();
+        ideasLayerFactory.run();
+        physicalLayerFactory.run();
         helpers.run();
 
         // constituting the powers instances and powers factories. 
-        primaryDAO.constitutePowers(
-            digitalSubDAO.getAddress(),
-            ideasSubDaoFactory.getAddress(),
-            physicalSubDaoFactory.getAddress(),
+        primaryLayer.constitutePowers(
+            digitalLayer.getAddress(),
+            ideasLayerFactory.getAddress(),
+            physicalLayerFactory.getAddress(),
             helpers.getActivityToken(),
-            helpers.getElectionList()
+            helpers.getElectionRegistry()
         );
-        digitalSubDAO.constitutePowers(
-            primaryDAO.getAddress(),
-            helpers.getActivityToken(),
-            primaryDAO.requestAllowanceDigitalDAOId()
+        digitalLayer.constitutePowers(
+            primaryLayer.getAddress(),
+            helpers.getElectionRegistry(),
+            primaryLayer.requestAllowanceDigitalLayerId()
         );
-        ideasSubDaoFactory.constitutePowers(
-            primaryDAO.getAddress(),
-            helpers.getElectionList(),
-            primaryDAO.getTreasury()
+        ideasLayerFactory.constitutePowers(
+            primaryLayer.getAddress(),
+            helpers.getElectionRegistry(),
+            primaryLayer.getTreasury(),
+            primaryLayer.requestParticipantpowersId(),
+            primaryLayer.requestNewPhysicalLayerId()
         );
-        physicalSubDaoFactory.constitutePowers(
-            primaryDAO.getAddress(),
+        physicalLayerFactory.constitutePowers(
+            primaryLayer.getAddress(),
             helpers.getGoverned721(),
             helpers.getActivityToken(),
             helpers.getNominees(),
-            primaryDAO.mintPoapTokenId()
+            primaryLayer.mintPoapTokenId(),
+            primaryLayer.requestAllowancePhysicalLayerId()
+
         );
 
         // step 5: transfer ownership of factories to primary DAO.
         vm.startBroadcast();
-        console2.log("Transferring ownership of DAO factories to Primary DAO...");
-        Soulbound1155(helpers.getActivityToken()).transferOwnership(address(primaryDAO));
-        Soulbound1155(helpers.getMeritBadges()).transferOwnership(address(primaryDAO)); 
-        Governed721(helpers.getGoverned721()).transferOwnership(address(primaryDAO));
-        Nominees(helpers.getNominees()).transferOwnership(address(primaryDAO));
+        console2.log("Transferring ownership of DAO factories to Primary Layer...");
+        Soulbound1155(helpers.getActivityToken()).transferOwnership(primaryLayer.getAddress());
+        Governed721(helpers.getGoverned721()).transferOwnership(primaryLayer.getAddress());
+        Nominees(helpers.getNominees()).transferOwnership(primaryLayer.getAddress());
+        
         vm.stopBroadcast();
 
         console2.log("Success! All contracts successfully deployed, unpacked and configured.");

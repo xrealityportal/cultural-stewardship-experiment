@@ -1,0 +1,37 @@
+{
+  "icon": "",
+  "banner": "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeih77m4lyvnjtlfjhdxlallszwylnfygjlhvolursvd4kwlyq4qceu/primaryLayer.png",
+  "description": 
+    "Cultural Stewards is a multi-layered ecosystem designed to foster an interplay between ideational concepts, physical spaces, and digital manifestations. The primary layer oversees the entire ecosystem, while the Ideas Layer manages concepts and digital interfaces, and the Physical Layer handles physical manifestations such as access to spaces and legal logs.",
+  "website": "https://github.com/publius-projects/powers-monorepo/tree/main/frontend/organisations",
+  "codeOfConduct": "https://github.com/publius-projects/powers-monorepo/blob/main/CODE_OF_CONDUCT.md", 
+  "disputeResolution": "",
+  "xmtpAgentAddress": "0xe65d5d40c878339596423b929058a13147f925e1",
+  "communicationChannels": {
+      "discord": "",
+      "telegram": "",
+      "x": "",
+      "paragraph": "",
+      "youtube": "",
+      "facebook": "",
+      "github": "https://github.com/publius-projects/powers-monorepo",
+      "forum": "",
+      "documentation": "https://powers-docs.vercel.app/"
+  },
+  "parentContracts": [ ],
+  "childContracts": [ 
+    {
+      "title": "Digital Layer",
+      "address": "0x6C1262f0ADd75FB9f4eAF05806178414e2B8d8Dd"
+    },
+    {
+      "title": "Our 1st Ideas",
+      "address": "0x799269c4fef0581c85307374ef648e12c323ca60"
+    },
+    {
+      "title": "London Venue",
+      "address": "0x4203e9cf97e1b2ccec693c49e001cc2f6016b721"
+    }
+  ],
+  "attributes": [ ]
+}

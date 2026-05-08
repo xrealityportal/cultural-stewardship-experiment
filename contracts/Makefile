@@ -312,7 +312,15 @@ fork-anvil :
 
 governance-deploy : 
 	@echo "Deploying example contracts..."
-	forge script governance/Deploy.s.sol:Deploy $(SEPOLIA_DEPLOY_ARGS) 
+	forge script governance/Deploy.s.sol:Deploy $(SEPOLIA_DEPLOY_ARGS)
+
+ideas-layer-deploy : 
+	@echo "Deploying ideas layer contracts..."
+	./governance/bash/deploy_ideas_layers.sh "" "" "" $(SEPOLIA_DEPLOY_ARGS)
+
+convergence-layer-deploy : 
+	@echo "Deploying convergence layer contracts..."
+	./governance/bash/deploy_convergence_layer.sh "" "" "" "" $(SEPOLIA_DEPLOY_ARGS)
 
 # Verify Contracts
 # sepoliaVerifyContract :; forge verify-contract --etherscan-api-key $(ETHERSCAN_API_KEY) --chain 11155111 --verifier etherscan 0x05c0379565ef0ebb1bD21C0Ab463ca5CE5211D3A src/Powers.sol:Powers --watch

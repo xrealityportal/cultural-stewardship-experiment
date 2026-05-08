@@ -8,7 +8,7 @@ import { ActionHelpers } from "./ActionHelpers.s.sol";
 
 // This script contains a set of modular interactions with the primary layer. They  can be used for testing or setting up up an organisation after deployment. 
 
-contract ManagementOrganisation is ActionHelpers {
+contract Management is ActionHelpers {
     uint16[] mandateSlots; 
     uint256[] actionIds; 
 

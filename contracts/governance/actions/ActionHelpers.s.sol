@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import { Script } from "forge-std/Script.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { console2 } from "forge-std/console2.sol";
+import { Configurations } from "@lib/powers-monorepo/solidity/script/Configurations.s.sol";
 
 import { PowersTypes } from "@lib/powers-monorepo/solidity/src/interfaces/PowersTypes.sol";
 import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
@@ -11,6 +12,8 @@ import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.so
 import { IMandate } from "@lib/powers-monorepo/solidity/src/interfaces/IMandate.sol";
 
 contract ActionHelpers is Script { 
+    Configurations helperConfig = new Configurations();
+
     //////////////////////////////////////////////////////////////////////////////////
     //                             Helper Functions                                 //
     //////////////////////////////////////////////////////////////////////////////////  
@@ -43,20 +46,18 @@ contract ActionHelpers is Script {
         returns (uint256 roleCountLocal, uint256 againstVoteLocal, uint256 forVoteLocal, uint256 abstainVoteLocal)
     {
         uint256 currentRandomiser;
-        for (uint256 i = 0; i < privateKeys.length + 1; i++) {
+        for (uint256 i = 0; i < privateKeys.length; i++) {
             // set randomiser..
             if (currentRandomiser < 10) {
                 currentRandomiser = randomiser;
             } else {
                 currentRandomiser = currentRandomiser / 10;
-            }
-            address voterAddress = vm.addr(privateKeys[i]);
-            console2.log("Voter address: ", voterAddress);
-
-            address voter = i < privateKeys.length ? voterAddress : msg.sender; // msg.sender will also vote, so we add them to the end of the list of private keys.
+            } 
+            address voter = vm.addr(privateKeys[i]); // msg.sender will also vote, so we add them to the end of the list of private keys.
             // vote
+            console2.log("Voter: ", voter);
             if (Powers(payable(organisation)).canCallMandate(voter, mandateToVoteOn)) {
-                roleCountLocal++;
+                roleCountLocal++; 
                 if (currentRandomiser % 100 >= passChance) {
                     vm.startBroadcast(privateKeys[i]);
                     Powers(payable(organisation)).castVote(actionIdLocal, 0); // = against
@@ -72,8 +73,16 @@ contract ActionHelpers is Script {
                     Powers(payable(organisation)).castVote(actionIdLocal, 2); // = abstain
                     vm.stopBroadcast();
                     abstainVoteLocal++;
-                }
+                } 
             }
         }
+        // msg.sender will always vote for, to ensure that the proposal is executed.
+        if (Powers(payable(organisation)).canCallMandate(msg.sender, mandateToVoteOn)) {
+            roleCountLocal++;
+            forVoteLocal++;
+        }
+        vm.startBroadcast();
+        Powers(payable(organisation)).castVote(actionIdLocal, 1); // = for
+        vm.stopBroadcast();
     }
 }

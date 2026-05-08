@@ -4,11 +4,11 @@ pragma solidity ^0.8.26;
 import { console2 } from "forge-std/console2.sol";
 import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
 import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
-import { ActionHelpers } from "./ActionHelpers.s.sol";
+import { ActionHelpers } from "./ActionHelpers.s.sol"; 
 
 // This script contains a set of modular interactions with the primary layer. They  can be used for testing or setting up up an organisation after deployment. 
 
-contract InitialiseOrganisation is ActionHelpers {
+contract Initialise is ActionHelpers { 
     uint16[] mandateSlots; 
     uint256[] actionIds; 
 
@@ -54,7 +54,7 @@ contract InitialiseOrganisation is ActionHelpers {
         }
     }
 
-    function deployIdeasLayer(address primaryLayer, uint256 nonce, uint256[] memory privateKeys) public {
+    function deployIdeasLayer1(address primaryLayer, uint256 nonce, uint256[] memory privateKeys) public {
         // step 0: reset state variables.
         delete mandateSlots;
         delete actionIds;
@@ -68,6 +68,7 @@ contract InitialiseOrganisation is ActionHelpers {
         // step 2: check if msg.sender has the permissions to run these mandates.
         for (uint i = 0; i < mandateSlots.length; i++) {
             Powers(payable(primaryLayer)).canCallMandate(msg.sender, mandateSlots[i]); // should return true 
+
         }
 
         // step 3a: execute mandate: initiate ideas layer: propose
@@ -89,7 +90,9 @@ contract InitialiseOrganisation is ActionHelpers {
         console2.log("Votes cast against initiating ideas layer proposal: ", againstVote);
         console2.log("Votes cast abstaining on initiating ideas layer proposal: ", abstainVote);
         console2.log("Total voters: ", roleCount);
-        
+    }
+
+    function deployIdeasLayer2(address primaryLayer, uint256 nonce, uint256[] memory privateKeys) public {
         // executing proposal. 
         vm.startBroadcast();
         IPowers(payable(primaryLayer)).request(mandateSlots[0], abi.encode(), nonce, string.concat("Executing create ideas layer"));
@@ -115,7 +118,9 @@ contract InitialiseOrganisation is ActionHelpers {
         console2.log("Votes cast against creating ideas layer proposal: ", againstVote);
         console2.log("Votes cast abstaining on creating ideas layer proposal: ", abstainVote);
         console2.log("Total voters: ", roleCount);
-  
+    }
+
+    function deployIdeasLayer3(address primaryLayer, uint256 nonce) public {
         // executing proposal. 
         vm.startBroadcast();
         IPowers(payable(primaryLayer)).request(mandateSlots[1], abi.encode(), nonce, string.concat("Executing create ideas layer"));
@@ -128,7 +133,7 @@ contract InitialiseOrganisation is ActionHelpers {
         vm.stopBroadcast();
     }
 
-    function deployConvergenceLayer(address ideasLayer, address primaryLayer, uint256 nonce, uint256[] memory privateKeys) public {
+    function deployConvergenceLayer1(address ideasLayer, address primaryLayer, uint256 nonce, uint256[] memory privateKeys) public {
         // step 0: reset state variables.
         delete mandateSlots;
         delete actionIds;
@@ -173,7 +178,9 @@ contract InitialiseOrganisation is ActionHelpers {
         console2.log("Votes cast against creating convergence layer proposal: ", againstVote);
         console2.log("Votes cast abstaining on creating convergence layer proposal: ", abstainVote);
         console2.log("Total voters: ", roleCount);
-  
+    } 
+
+    function deployConvergenceLayer2(address ideasLayer, address primaryLayer, uint256 nonce) public {
         // executing proposal -> request is send to Primary Layer. 
         vm.startBroadcast();
         IPowers(ideasLayer).request(mandateSlots[1], abi.encode(), nonce, string.concat("Executing create convergence layer"));

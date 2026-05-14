@@ -16,13 +16,13 @@ import { MandateRegistry } from "@lib/powers-monorepo/solidity/src/helpers/Manda
 
 abstract contract DeploySetup is DeployHelpers {
     Configurations helperConfig = new Configurations();
-    MandateRegistry registry = MandateRegistry(helperConfig.getMandateRegistry(block.chainid)); 
+    MandateRegistry registry = MandateRegistry(0x97b66F08Eb857e27A24492D338d3DC484DF63896); 
 
     address cedars = 0x328735d26e5Ada93610F0006c32abE2278c46211;
-    address testAccount1 = 0xEA223f81D7E74321370a77f1e44067bE8738B627;
-    address testAccount2 = 0x1bFdB91B283d7Ec24012d7ff5A5B29005140D09a;
-    address testAccount3 = 0x49fCf1DD685F6b5F88d9b0a972Dbf80Ee8846234;
-    string baseURI = "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeic2riafj6r6zzbrhewhe6q4l7jpw7u5mj32q55xcvfxwxyupgjffu/";
+    address testAccount1 = vm.addr(vm.envUint("TEST_ACCOUNT_KEY_1"));
+    address testAccount2 = vm.addr(vm.envUint("TEST_ACCOUNT_KEY_2"));
+    address testAccount3 = vm.addr(vm.envUint("TEST_ACCOUNT_KEY_3"));
+    string baseURI = "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafybeibnyrgzok373d4zveasq3jppz62jievfih7yyaiqdgmucwcznhqfa/";
     
     uint256 constitutionLength; 
     address[] targets;
@@ -33,13 +33,13 @@ abstract contract DeploySetup is DeployHelpers {
     string[] dynamicParams;
     uint16 mandateCount;
     address treasury;
+    address paymaster; 
 
     // The mandate version to be used. 
     uint16 constant MAJOR = 0;
-    uint16 constant MINOR = 6;
+    uint16 constant MINOR = 1;
     uint16 constant PATCH = 2;
-    bool constant IS_STRICT = false;
 
-    uint16 constant PACKAGE_SIZE = 7; // for packaging constitution proposals into multiple mandates if they exceed the block gas limit. This is a temporary solution and should be replaced with a more robust solution before production deployment.
+    uint16 constant PACKAGE_SIZE = 7;  
 }
 

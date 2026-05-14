@@ -22,15 +22,15 @@
   "childContracts": [ 
     {
       "title": "Digital Layer",
-      "address": "0x6C1262f0ADd75FB9f4eAF05806178414e2B8d8Dd"
+      "address": "0x6202B40331067aFd55AD6Ca19a5740C7ae389F8D"
     },
     {
       "title": "Our 1st Ideas",
-      "address": "0x799269c4fef0581c85307374ef648e12c323ca60"
+      "address": "0x7B77d4318B817Aa587fC22a2268D5e172Ec916bB"
     },
     {
       "title": "London Venue",
-      "address": "0x4203e9cf97e1b2ccec693c49e001cc2f6016b721"
+      "address": "0xFAeA7205291608086E0D2452DC98e0E16Bae416D"
     }
   ],
   "attributes": [ ]

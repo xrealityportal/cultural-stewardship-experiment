@@ -25,17 +25,17 @@ pragma solidity ^0.8.26;
 //         uint16 createIdeasMandateId;
 //         uint16 assignRoleMandateId;
 //         uint16 revokeIdeasMandateId;
-//         uint16 initiatePhysicalId;
+//         uint16 initiateConvergenceId;
 //         uint16 deployMeritBadgeId;
 //         uint16 addDependencyId;
-//         uint16 createPhysicalId;
+//         uint16 createConvergenceId;
 //         uint16 assignRoleId;
 //         uint16 assignAllowanceId;
 //         uint16 revokeRoleId;
 //         uint16 revokeAllowanceId;
 //         uint16 assignDelegateId;
-//         uint16 requestPhysicalAllowanceId;
-//         uint16 grantPhysicalAllowanceId;
+//         uint16 requestConvergenceAllowanceId;
+//         uint16 grantConvergenceAllowanceId;
 //         uint16 requestDigitalAllowanceId;
 //         uint16 grantDigitalAllowanceId;
 //         uint16 initiateReformId;
@@ -51,7 +51,7 @@ pragma solidity ^0.8.26;
 //         uint256 numPackages;
 //         bytes params;
 //         uint256 nonce;
-//         address physicalSubDAOAddress;
+//         address convergenceSubDAOAddress;
 //         bytes revokeParams;
 //         // Additional fields for other tests
 //         uint48 delegateIndex;
@@ -75,7 +75,7 @@ pragma solidity ^0.8.26;
 //         address user;
 //         address recipient;
 //         address fakeIdeasLayer;
-//         address mockPhysicalLayer;
+//         address mockConvergenceLayer;
 //         address convener;
 //         address member;
 
@@ -103,7 +103,7 @@ pragma solidity ^0.8.26;
 //         uint16 createWGId;
 //         uint16 createWGElectionId;
 //         uint16 tallyId;
-//         uint16 requestPhysicalId;
+//         uint16 requestConvergenceId;
 
 //         uint256[5] allowanceInfo;
 //         bytes paymentParams;
@@ -176,21 +176,21 @@ pragma solidity ^0.8.26;
 //         mem.assignRoleMandateId = findMandateIdInOrg("Assign role Id to DAO: Assign role id 4 (Ideas Layer) to the new DAO", PrimaryLayer);
 //         mem.revokeIdeasMandateId = findMandateIdInOrg("Revoke role Id: Revoke role id 4 (Ideas Layer) from the DAO", PrimaryLayer);
 
-//         mem.initiatePhysicalId = findMandateIdInOrg("Initiate Physical Layer: Initiate creation of Physical Layer", PrimaryLayer);
-//         // mem.deployMeritBadgeId = findMandateIdInOrg("Deploy Merit Badge Contract: Deploy a Soulbound1155 contract to be used as merit badges for the Physical Layer", PrimaryLayer);
-//         // mem.addDependencyId = findMandateIdInOrg("Add dependency: Add the deployed Soulbound1155 as a dependency to the create Physical Layer mandate", PrimaryLayer);
+//         mem.initiateConvergenceId = findMandateIdInOrg("Initiate Convergence Layer: Initiate creation of Convergence Layer", PrimaryLayer);
+//         // mem.deployMeritBadgeId = findMandateIdInOrg("Deploy Merit Badge Contract: Deploy a Soulbound1155 contract to be used as merit badges for the Convergence Layer", PrimaryLayer);
+//         // mem.addDependencyId = findMandateIdInOrg("Add dependency: Add the deployed Soulbound1155 as a dependency to the create Convergence Layer mandate", PrimaryLayer);
         
-//         mem.createPhysicalId = findMandateIdInOrg("Create Physical Layer: Execute Physical Layer creation", PrimaryLayer);
-//         mem.assignRoleId = findMandateIdInOrg("Assign role Id: Assign role Id 3 to Physical Layer", PrimaryLayer);
+//         mem.createConvergenceId = findMandateIdInOrg("Create Convergence Layer: Execute Convergence Layer creation", PrimaryLayer);
+//         mem.assignRoleId = findMandateIdInOrg("Assign role Id: Assign role Id 3 to Convergence Layer", PrimaryLayer);
         
-//         mem.assignDelegateId = findMandateIdInOrg("Assign Delegate status: Assign delegate status at Safe treasury to the Physical Layer", PrimaryLayer);
+//         mem.assignDelegateId = findMandateIdInOrg("Assign Delegate status: Assign delegate status at Safe treasury to the Convergence Layer", PrimaryLayer);
 //         mem.assignAllowanceId = mem.assignDelegateId;
 
-//         mem.revokeRoleId = findMandateIdInOrg("Revoke Role Id: Revoke role Id 3 from Physical Layer", PrimaryLayer);
-//         mem.revokeAllowanceId = findMandateIdInOrg("Revoke Delegate status: Revoke delegate status Physical Layer at the Safe treasury", PrimaryLayer);
+//         mem.revokeRoleId = findMandateIdInOrg("Revoke Role Id: Revoke role Id 3 from Convergence Layer", PrimaryLayer);
+//         mem.revokeAllowanceId = findMandateIdInOrg("Revoke Delegate status: Revoke delegate status Convergence Layer at the Safe treasury", PrimaryLayer);
         
-//         mem.requestPhysicalAllowanceId = findMandateIdInOrg("Request additional allowance: Any Physical Layer can request an allowance from the Safe Treasury.", PrimaryLayer);
-//         mem.grantPhysicalAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for a Physical Layer.", PrimaryLayer);
+//         mem.requestConvergenceAllowanceId = findMandateIdInOrg("Request additional allowance: Any Convergence Layer can request an allowance from the Safe Treasury.", PrimaryLayer);
+//         mem.grantConvergenceAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for a Convergence Layer.", PrimaryLayer);
         
 //         mem.requestDigitalAllowanceId = findMandateIdInOrg("Request additional allowance: The Digital Layer can request an allowance from the Safe Treasury.", PrimaryLayer);
 //         mem.grantDigitalAllowanceId = findMandateIdInOrg("Set Allowance: Execute and set allowance for the Digital Layer.", PrimaryLayer);
@@ -206,7 +206,7 @@ pragma solidity ^0.8.26;
 //         // 4. Verify Role Labels
 //         assertEq(PrimaryLayer.getRoleLabel(1), "Members", "Role 1 should be Members");
 //         assertEq(PrimaryLayer.getRoleLabel(2), "Executives", "Role 2 should be Executives");
-//         assertEq(PrimaryLayer.getRoleLabel(3), "Physical Layers", "Role 3 should be Physical Layers");
+//         assertEq(PrimaryLayer.getRoleLabel(3), "Convergence Layers", "Role 3 should be Convergence Layers");
 //         assertEq(PrimaryLayer.getRoleLabel(4), "Ideas Layers", "Role 4 should be Ideas Layers");
 //         assertEq(PrimaryLayer.getRoleLabel(5), "Digital Layers", "Role 5 should be Digital Layers");
 
@@ -264,25 +264,25 @@ pragma solidity ^0.8.26;
 //         assertEq(mem.roleSince, 0, "Ideas Layer should NOT have Role 4 anymore");
 //     }
 
-//     function test_CreateAndRevokePhysicalSubDAO() public {
+//     function test_CreateAndRevokeConvergenceSubDAO() public {
 //         _deployIdeasSubDAO();
-//         _deployPhysicalSubDAO();
+//         _deployConvergenceSubDAO();
 
-//         // Verify Role 3 (Physical Layers)
-//         assertTrue(PrimaryLayer.hasRoleSince(mem.physicalSubDAOAddress, 3) > 0, "Role 3 missing");
+//         // Verify Role 3 (Convergence Layers)
+//         assertTrue(PrimaryLayer.hasRoleSince(mem.convergenceSubDAOAddress, 3) > 0, "Role 3 missing");
 
 //         // Verify Status (Delegate)
-//         // Note: _deployPhysicalSubDAO assigns delegate status
-//         mem.delegateIndex = uint48(uint160(address(mem.physicalSubDAOAddress)));
+//         // Note: _deployConvergenceSubDAO assigns delegate status
+//         mem.delegateIndex = uint48(uint160(address(mem.convergenceSubDAOAddress)));
 //         (mem.delegateAddr,,) = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).delegates(treasury, mem.delegateIndex);
 //         assertEq(
-//             mem.delegateAddr, mem.physicalSubDAOAddress, "Digital Layer should be a delegate on Allowance Module"
+//             mem.delegateAddr, mem.convergenceSubDAOAddress, "Digital Layer should be a delegate on Allowance Module"
 //         );
 
-//         // --- Step 5: Revoke Physical Layer ---
-//         vm.startPrank(cedars); // _deployPhysicalSubDAO ends pranking cedars, but better be safe
-//         console.log("Revoking Physical Layer...");
-//         mem.revokeParams = abi.encode(mem.physicalSubDAOAddress, true); // address, bool
+//         // --- Step 5: Revoke Convergence Layer ---
+//         vm.startPrank(cedars); // _deployConvergenceSubDAO ends pranking cedars, but better be safe
+//         console.log("Revoking Convergence Layer...");
+//         mem.revokeParams = abi.encode(mem.convergenceSubDAOAddress, true); // address, bool
 //         mem.nonce++;
 
 //         // Revoke Role
@@ -296,14 +296,14 @@ pragma solidity ^0.8.26;
 //         PrimaryLayer.request(mem.revokeRoleId, mem.revokeParams, mem.nonce, "");
 
 //         // Verify Role Revoked
-//         assertEq(PrimaryLayer.hasRoleSince(mem.physicalSubDAOAddress, 3), 0, "Role 3 not revoked");
+//         assertEq(PrimaryLayer.hasRoleSince(mem.convergenceSubDAOAddress, 3), 0, "Role 3 not revoked");
 
 //         // Revoke Allowance
 //         console.log("Revoking Allowance...");
 //         PrimaryLayer.request(mem.revokeAllowanceId, mem.revokeParams, mem.nonce, "Revoke Allowance");
 
 //         // Verify Allowance Revoked
-//         mem.delegateIndex = uint48(uint160(address(mem.physicalSubDAOAddress)));
+//         mem.delegateIndex = uint48(uint160(address(mem.convergenceSubDAOAddress)));
 //         (mem.delegateAddr,,) = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).delegates(treasury, mem.delegateIndex);
 //         assertEq(mem.delegateAddr, address(0), "Digital Layer should NOT be a delegate on Allowance Module anymore");
 
@@ -312,12 +312,12 @@ pragma solidity ^0.8.26;
 
 //     function test_AddAllowances() public {
 //         _deployIdeasSubDAO();
-//         _deployPhysicalSubDAO();
+//         _deployConvergenceSubDAO();
 
-//         // Verify Role 3 (Physical Layers)
-//         assertTrue(PrimaryLayer.hasRoleSince(mem.physicalSubDAOAddress, 3) > 0, "Role 3 missing");
+//         // Verify Role 3 (Convergence Layers)
+//         assertTrue(PrimaryLayer.hasRoleSince(mem.convergenceSubDAOAddress, 3) > 0, "Role 3 missing");
 
-//         // --- TEST 1: Physical Layer Allowance Flow ---
+//         // --- TEST 1: Convergence Layer Allowance Flow ---
 
 //         // Params for allowance: Sub-DAO, Token, Amount, ResetTime, ResetBase
 //         mem.token = address(0); // ETH
@@ -325,37 +325,37 @@ pragma solidity ^0.8.26;
 //         mem.resetTime = 100;
 //         mem.resetBase = 0;
 
-//         mem.allowanceParams = abi.encode(mem.physicalSubDAOAddress, mem.token, mem.amount, mem.resetTime, mem.resetBase);
+//         mem.allowanceParams = abi.encode(mem.convergenceSubDAOAddress, mem.token, mem.amount, mem.resetTime, mem.resetBase);
 //         mem.nonce++;
 
-//         // 1. Physical Layer requests allowance
-//         vm.startPrank(mem.physicalSubDAOAddress);
-//         console.log("Physical Layer requesting allowance...");
-//         PrimaryLayer.request(mem.requestPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Physical Layer requesting allowance");
+//         // 1. Convergence Layer requests allowance
+//         vm.startPrank(mem.convergenceSubDAOAddress);
+//         console.log("Convergence Layer requesting allowance...");
+//         PrimaryLayer.request(mem.requestConvergenceAllowanceId, mem.allowanceParams, mem.nonce, "Convergence Layer requesting allowance");
 //         vm.stopPrank();
 
-//         // 2. Veto by Physical Layers check (we will just wait out the timelock/voting period of the grant without vetoing)
+//         // 2. Veto by Convergence Layers check (we will just wait out the timelock/voting period of the grant without vetoing)
 //         // Note: The grant mandate requires the veto NOT to be fulfilled.
 
 //         // 3. Executives grant allowance
 //         // Role 2 (Executives) is held by cedars.
 //         vm.startPrank(cedars);
-//         console.log("Executives granting allowance to Physical Layer...");
+//         console.log("Executives granting allowance to Convergence Layer...");
 
-//         mem.actionId = PrimaryLayer.propose(mem.grantPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Physical Layer Allowance - Propose");
+//         mem.actionId = PrimaryLayer.propose(mem.grantConvergenceAllowanceId, mem.allowanceParams, mem.nonce, "Grant Convergence Layer Allowance - Propose");
 //         PrimaryLayer.castVote(mem.actionId, 1);
 
 //         // Wait voting + timelock
-//         mem.votingPeriod = PrimaryLayer.getConditions(mem.grantPhysicalAllowanceId).votingPeriod;
-//         mem.timelock = PrimaryLayer.getConditions(mem.grantPhysicalAllowanceId).timelock;
+//         mem.votingPeriod = PrimaryLayer.getConditions(mem.grantConvergenceAllowanceId).votingPeriod;
+//         mem.timelock = PrimaryLayer.getConditions(mem.grantConvergenceAllowanceId).timelock;
 //         vm.roll(block.number + mem.votingPeriod + mem.timelock + 1);
 
-//         PrimaryLayer.request(mem.grantPhysicalAllowanceId, mem.allowanceParams, mem.nonce, "Grant Physical Layer Allowance - Request");
+//         PrimaryLayer.request(mem.grantConvergenceAllowanceId, mem.allowanceParams, mem.nonce, "Grant Convergence Layer Allowance - Request");
 //         vm.stopPrank();
 
 //         // Verify Allowance
-//         mem.allowanceInfo = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).getTokenAllowance(treasury, mem.physicalSubDAOAddress, mem.token);
-//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Physical Layer allowance should be set");
+//         mem.allowanceInfo = IAllowanceModule(helperConfig.getSafeAllowanceModule(block.chainid)).getTokenAllowance(treasury, mem.convergenceSubDAOAddress, mem.token);
+//         assertEq(uint96(mem.allowanceInfo[0]), mem.amount, "Convergence Layer allowance should be set");
 
 //         // --- TEST 2: Digital Layer Allowance Flow ---
 
@@ -494,7 +494,7 @@ pragma solidity ^0.8.26;
 
 //     function test_AdoptMandate_PrimaryLayer() public {
 //         _deployIdeasSubDAO();
-//         _deployPhysicalSubDAO();
+//         _deployConvergenceSubDAO();
 
 //         // 1. Prepare Mandate Data
 //         PresetActions newMandate = new PresetActions();
@@ -559,7 +559,7 @@ pragma solidity ^0.8.26;
 
 //     function test_JoinPrimeDAO() public {
 //         _deployIdeasSubDAO();
-//         _deployPhysicalSubDAO();
+//         _deployConvergenceSubDAO();
 
 //         // Setup Member
 //         mem.member = address(0xABC);
@@ -580,32 +580,32 @@ pragma solidity ^0.8.26;
 //         // Verify Membership
 //         assertTrue(Powers(payable(mem.ideasSubDAOAddress)).hasRoleSince(mem.member, 1) > 0, "Member should have Ideas Role 1");
 
-//         // --- Step 2: Mint POAPs at Physical DAO ---
-//         // Note: Cedars is assigned Role 2 (Convener) in createPhysicalConstitution
+//         // --- Step 2: Mint POAPs at Convergence DAO ---
+//         // Note: Cedars is assigned Role 2 (Convener) in createConvergenceConstitution
 //         // Mandate: "Mint POAP: Any Convener can mint a POAP." calling Primary Layer
 //         // The Primary Layer mandate (GovernedToken_MintEncodedToken) expects (to, artist, uri)
-//         // But the Physical DAO ExternalAction_Simple has inputParams="address To".
+//         // But the Convergence DAO ExternalAction_Simple has inputParams="address To".
 //         // However, we pass the full encoded data that matches the target mandate signature.
         
-//         mem.mintPoapPrimaryId = findMandateIdInOrg("Mint POAP: Any Convener can mint a POAP.", Powers(payable(mem.physicalSubDAOAddress)));
+//         mem.mintPoapPrimaryId = findMandateIdInOrg("Mint POAP: Any Convener can mint a POAP.", Powers(payable(mem.convergenceSubDAOAddress)));
         
 //         // Mint 2 tokens
 //         // We need to pass valid calldata for GovernedToken_MintEncodedToken: (address to, address artist, string uri)
 //         bytes memory mintCalldata = abi.encode(mem.member, address(0), "");
         
 //         vm.prank(cedars);
-//         Powers(payable(mem.physicalSubDAOAddress)).request(mem.mintPoapPrimaryId, mintCalldata, 1, "Mint POAP 1");
+//         Powers(payable(mem.convergenceSubDAOAddress)).request(mem.mintPoapPrimaryId, mintCalldata, 1, "Mint POAP 1");
         
 //         // Token ID calculation logic from GovernedToken_MintEncodedToken
 //         // id = (uint256(uint160(caller)) << 48) | uint256(block.number);
-//         // caller is PhysicalSubDAO address
-//         uint256 tokenId1 = (uint256(uint160(mem.physicalSubDAOAddress)) << 48) | uint256(block.number);
+//         // caller is ConvergenceSubDAO address
+//         uint256 tokenId1 = (uint256(uint160(mem.convergenceSubDAOAddress)) << 48) | uint256(block.number);
         
 //         vm.roll(block.number + 1); // Advance block to get unique ID
         
 //         vm.prank(cedars);
-//         Powers(payable(mem.physicalSubDAOAddress)).request(mem.mintPoapPrimaryId, mintCalldata, 2, "Mint POAP 2");
-//         uint256 tokenId2 = (uint256(uint160(mem.physicalSubDAOAddress)) << 48) | uint256(block.number);
+//         Powers(payable(mem.convergenceSubDAOAddress)).request(mem.mintPoapPrimaryId, mintCalldata, 2, "Mint POAP 2");
+//         uint256 tokenId2 = (uint256(uint160(mem.convergenceSubDAOAddress)) << 48) | uint256(block.number);
 
 //         // --- Step 3: Request Membership at Ideas DAO ---
 //         uint256[] memory tokenIds = new uint256[](2);
@@ -639,7 +639,7 @@ pragma solidity ^0.8.26;
 //         // We can verify that Step 1 is fulfilled if we want, but we'll see if Step 2 works.
 
 //         // --- Step 4: Claim Membership at Primary Layer ---
-//         mem.claimStep2Id = findMandateIdInOrg("Request Membership Step 2: 2 POAPS from physical DAO are needed that are not older than 6 months.", PrimaryLayer);
+//         mem.claimStep2Id = findMandateIdInOrg("Request Membership Step 2: 2 POAPS from convergence DAO are needed that are not older than 6 months.", PrimaryLayer);
         
 //         vm.prank(mem.member);
 //         PrimaryLayer.request(mem.claimStep2Id, mem.params, 1, "Claim Membership Step 2");
@@ -908,30 +908,30 @@ pragma solidity ^0.8.26;
 //         console.log("Ideas Layer deployed at: %s", mem.ideasSubDAOAddress);
 //     }
 
-//     function _deployPhysicalSubDAO() internal {
+//     function _deployConvergenceSubDAO() internal {
 //         // Requires mem.ideasSubDAOAddress to be set and have Role 4.
         
-//         mem.params = abi.encode("Physical Layer", "ipfs://physical");
+//         mem.params = abi.encode("Convergence Layer", "ipfs://convergence");
 //         mem.nonce++; // Increment nonce
         
-//         console.log("Initiating Physical Layer...");
+//         console.log("Initiating Convergence Layer...");
 //         // Propose (By Ideas Layer - Role 4)
 //         vm.prank(mem.ideasSubDAOAddress);
-//         PrimaryLayer.request(mem.initiatePhysicalId, mem.params, mem.nonce, "Initiate Physical Layer");
+//         PrimaryLayer.request(mem.initiateConvergenceId, mem.params, mem.nonce, "Initiate Convergence Layer");
 
 //         // --- Step 2: Deploy & Register Merit Badge Contract ---
 //         // deploy Merit Badge Contract (Cedars/Exec)
 //         // vm.prank(cedars);
 //         // PrimaryLayer.request(mem.deployMeritBadgeId, mem.params, mem.nonce, "Deploy Merit Badge Contract");
 
-//         // // Add dependency to Create Physical Layer mandate (Cedars/Exec)
+//         // // Add dependency to Create Convergence Layer mandate (Cedars/Exec)
 //         // vm.prank(cedars);
 //         // PrimaryLayer.request(mem.addDependencyId, mem.params, mem.nonce, "Add dependency: Merit Badge Contract");
 
-//         // --- Step 3: Create Physical Layer ---
-//         console.log("Creating Physical Layer...");
+//         // --- Step 3: Create Convergence Layer ---
+//         console.log("Creating Convergence Layer...");
 //         vm.prank(cedars);
-//         mem.actionId = PrimaryLayer.propose(mem.createPhysicalId, mem.params, mem.nonce, "Create Physical Layer Propose");
+//         mem.actionId = PrimaryLayer.propose(mem.createConvergenceId, mem.params, mem.nonce, "Create Convergence Layer Propose");
 
 //         // Vote (Executives - Role 2)
 //         mem.numberOfRole1Holders = PrimaryLayer.getAmountRoleHolders(2);
@@ -941,26 +941,26 @@ pragma solidity ^0.8.26;
 //             PrimaryLayer.castVote(mem.actionId, 1);
 //         }
 
-//         vm.roll(block.number + PrimaryLayer.getConditions(mem.createPhysicalId).votingPeriod + 1);
+//         vm.roll(block.number + PrimaryLayer.getConditions(mem.createConvergenceId).votingPeriod + 1);
 //         vm.prank(cedars);
-//         mem.actionId = PrimaryLayer.request(mem.createPhysicalId, mem.params, mem.nonce, "Create Physical Layer Request");
+//         mem.actionId = PrimaryLayer.request(mem.createConvergenceId, mem.params, mem.nonce, "Create Convergence Layer Request");
 
 //         // Get address
 //         mem.returnData = PrimaryLayer.getActionReturnData(mem.actionId, 0);
-//         mem.physicalSubDAOAddress = abi.decode(mem.returnData, (address));
-//         console.log("Physical Layer created at: %s", mem.physicalSubDAOAddress);
+//         mem.convergenceSubDAOAddress = abi.decode(mem.returnData, (address));
+//         console.log("Convergence Layer created at: %s", mem.convergenceSubDAOAddress);
 
 //         // --- Step 3: Assign Role ---
 //         console.log("Assigning Role...");
 //         vm.startPrank(cedars);
-//         PrimaryLayer.request(mem.assignRoleId, mem.params, mem.nonce, "Assign Role 3 to Physical Layer");
+//         PrimaryLayer.request(mem.assignRoleId, mem.params, mem.nonce, "Assign Role 3 to Convergence Layer");
 
 //         // --- Step 4: Assign Delegate Status ---
 //         // (Necessary for Allowance Module)
 //         PrimaryLayer.request(mem.assignDelegateId, mem.params, mem.nonce, "Assign Delegate Status");
         
 //         // step 5: Ping layer to initialize (so that it can receive the role assignment and delegate status)
-//         Powers(payable(mem.physicalSubDAOAddress)).request(1, "", 0, ""); // Ping to initialize
+//         Powers(payable(mem.convergenceSubDAOAddress)).request(1, "", 0, ""); // Ping to initialize
         
 //         vm.stopPrank();
 //     }

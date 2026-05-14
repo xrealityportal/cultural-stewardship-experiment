@@ -11,6 +11,7 @@ import { Safe } from "@lib/safe-smart-account/contracts/Safe.sol";
 
 import { PowersTypes } from "@lib/powers-monorepo/solidity/src/interfaces/PowersTypes.sol";
 import { Powers } from "@lib/powers-monorepo/solidity/src/Powers.sol";
+import { IPowers } from "@lib/powers-monorepo/solidity/src/interfaces/IPowers.sol";
 
 import { Soulbound1155 } from "@lib/powers-monorepo/solidity/src/helpers/Soulbound1155.sol";
 import { Governed721 } from "@lib/powers-monorepo/solidity/src/helpers/Governed721.sol";
@@ -18,12 +19,14 @@ import { Nominees } from "@lib/powers-monorepo/solidity/src/helpers/Nominees.sol
 import { ElectionRegistry } from "@lib/powers-monorepo/solidity/src/helpers/ElectionRegistry.sol";
 import { PowersFactory } from "@lib/powers-monorepo/solidity/src/helpers/PowersFactory.sol"; 
 import { PowersDeployer } from "@lib/powers-monorepo/solidity/src/helpers/PowersDeployer.sol";
+import { PowersPaymaster } from "@lib/powers-monorepo/solidity/src/helpers/PowersPaymaster.sol";
 
 import { Helpers } from "./Helpers.s.sol";
+import { Initialise } from "./actions/Initialise.s.sol";
 import { PrimaryLayer } from "./PrimaryLayer.s.sol";
 import { DigitalLayer } from "./DigitalLayer.s.sol";
 import { IdeasLayer } from "./IdeasLayer.s.sol";
-import { PhysicalLayer } from "./PhysicalLayer.s.sol";
+import { ConvergenceLayer } from "./ConvergenceLayer.s.sol";
 
 /// @title Cultural Stewards DAO - Deployment Script
 /// Note: all days are turned into minutes for testing purposes. These should be changed before production deployment: ctrl-f minutesToBlocks -> daysToBlocks.
@@ -31,31 +34,41 @@ contract Deploy is Script {
     PrimaryLayer primaryLayer;
     DigitalLayer digitalLayer;
     IdeasLayer ideasLayerFactory;
-    PhysicalLayer physicalLayerFactory;
+    ConvergenceLayer convergenceLayerFactory;
     Helpers helpers; 
+    Initialise initialise;
+
+    string[] public ideasLayerNames = ["Seeing", "Making", "Listening", "Telling", "Remembering", "Imagining", "Tending"];
     
     function run() external { 
-        // step 0, setup. 
+        // step 1, setup. 
         primaryLayer = new PrimaryLayer();
         digitalLayer = new DigitalLayer();
         ideasLayerFactory = new IdeasLayer();
-        physicalLayerFactory = new PhysicalLayer();
+        convergenceLayerFactory = new ConvergenceLayer();
         helpers = new Helpers();
+        initialise = new Initialise();
 
-        // deploying the core Powers and Powers factory instances: 
+        uint256[] memory privateKeys = new uint256[](3);
+        privateKeys[0] = vm.envUint("TEST_ACCOUNT_KEY_1");
+        privateKeys[1] = vm.envUint("TEST_ACCOUNT_KEY_2");
+        privateKeys[2] = vm.envUint("TEST_ACCOUNT_KEY_3");
+
+        // step 2, deploying the core Powers and Powers factory instances: 
         primaryLayer.run();
         digitalLayer.run();
         ideasLayerFactory.run();
-        physicalLayerFactory.run();
+        convergenceLayerFactory.run();
         helpers.run();
 
-        // constituting the powers instances and powers factories. 
+        // step 3, constituting the powers instances and powers factories. 
         primaryLayer.constitutePowers(
             digitalLayer.getAddress(),
             ideasLayerFactory.getAddress(),
-            physicalLayerFactory.getAddress(),
+            convergenceLayerFactory.getAddress(),
             helpers.getActivityToken(),
-            helpers.getElectionRegistry()
+            helpers.getElectionRegistry(),
+            digitalLayer.getAssignConvergenceLayer()
         );
         digitalLayer.constitutePowers(
             primaryLayer.getAddress(),
@@ -67,27 +80,30 @@ contract Deploy is Script {
             helpers.getElectionRegistry(),
             primaryLayer.getTreasury(),
             primaryLayer.requestParticipantpowersId(),
-            primaryLayer.requestNewPhysicalLayerId()
+            primaryLayer.requestNewConvergenceLayerId()
         );
-        physicalLayerFactory.constitutePowers(
+        convergenceLayerFactory.constitutePowers(
             primaryLayer.getAddress(),
             helpers.getGoverned721(),
             helpers.getActivityToken(),
             helpers.getNominees(),
             primaryLayer.mintPoapTokenId(),
-            primaryLayer.requestAllowancePhysicalLayerId()
+            primaryLayer.requestAllowanceConvergenceLayerId()
 
         );
 
-        // step 5: transfer ownership of factories to primary DAO.
+        // step 4: transfer ownership of factories to Primary Layer.
         vm.startBroadcast();
-        console2.log("Transferring ownership of DAO factories to Primary Layer...");
+        console2.log("Transferring ownership of Organisational factories to Primary Layer...");
         Soulbound1155(helpers.getActivityToken()).transferOwnership(primaryLayer.getAddress());
         Governed721(helpers.getGoverned721()).transferOwnership(primaryLayer.getAddress());
         Nominees(helpers.getNominees()).transferOwnership(primaryLayer.getAddress());
-        
         vm.stopBroadcast();
+ 
+        // step 5: run setup on primary and digital layer.
+        initialise.runSetupMandate(primaryLayer.getAddress(), block.timestamp);
+        initialise.runSetupMandate(digitalLayer.getAddress(), block.timestamp);
 
-        console2.log("Success! All contracts successfully deployed, unpacked and configured.");
+        console2.log("Success! All contracts successfully deployed.");
     }
 }
